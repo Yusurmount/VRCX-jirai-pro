@@ -122,7 +122,7 @@ export const useAppearanceSettingsStore = defineStore(
         const showNewDashboardButton = ref(true);
         const tableLimitsDialog = ref({
             visible: false,
-            maxTableSize: 500,
+            maxTableSize: -1,
             searchLimit: 5000
         });
 
@@ -1092,6 +1092,7 @@ export const useAppearanceSettingsStore = defineStore(
             if (!Number.isFinite(n)) {
                 return null;
             }
+            if (n === -1) return -1;
             if (n < min || n > max) {
                 return null;
             }
@@ -1103,7 +1104,7 @@ export const useAppearanceSettingsStore = defineStore(
          */
         function showTableLimitsDialog() {
             tableLimitsDialog.value.maxTableSize = Number(
-                vrcxStore.maxTableSize ?? 500
+                vrcxStore.maxTableSize ?? -1
             );
             tableLimitsDialog.value.searchLimit = Number(
                 vrcxStore.searchLimit ?? 50000

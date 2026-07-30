@@ -1224,9 +1224,6 @@
                         "header": "独立密码",
                         "description": "使用独立密码加密 VRCX 数据（将停用自动登录）"
                     },
-                    "auto_join_group_certification": {
-                        "header": "认证"
-                    },
                     "relaunch_vrchat": {
                         "header": "崩溃后重启",
                         "description": "重新加入崩溃前的房间"
@@ -1383,9 +1380,38 @@
                     "user_generated_content": {
                         "header": "内容存放设置",
                         "folder": "打开保存文件夹",
-                        "description": "设置“拍立得”和“贴纸”等内容保存的位置",
+                        "description": "设置\"拍立得\"和\"贴纸\"等内容保存的位置",
                         "set_folder": "设置保存文件夹",
                         "reset_override": "重置为默认"
+                    },
+                    "db_export": {
+                        "button": "导出数据库",
+                        "description": "将所有数据库数据（用户配置、历史记录、缓存等）导出为 JSON 文件。",
+                        "confirm_title": "导出数据库数据",
+                        "confirm_message": "这将导出所有数据库数据，包括动态历史、游戏日志、缓存数据、收藏、备注及其他所有应用数据。敏感认证信息将不会被包含。是否继续？",
+                        "exporting": "正在导出数据库... ({current}/{total} 个表)",
+                        "success": "数据库已成功导出至：\n{path}",
+                        "error": "导出失败：{error}",
+                        "error_cancelled": "导出已取消。"
+                    },
+                    "db_import": {
+                        "button": "导入数据库",
+                        "description": "从之前导出的 JSON 文件中导入数据库数据。仅接受同一账号的导出文件。",
+                        "confirm_title": "导入数据库数据",
+                        "confirm_message": "这将从选定的备份文件中导入数据并合并到现有数据中。现有数据将保留，新数据将被添加或更新。是否继续？",
+                        "reading": "正在读取导入文件...",
+                        "importing": "正在导入数据... ({progress}%)",
+                        "success": "导入成功完成。\n共导入 {importedCount} 条记录，涉及 {tablesProcessed} 个表。",
+                        "error": "导入失败：{error}",
+                        "error_cancelled": "导入已取消。",
+                        "error_invalid_format": "无效的文件格式，请选择有效的 VRCX 数据库备份文件。",
+                        "error_missing_metadata": "文件缺少元数据，可能已损坏或不是有效的 VRCX 备份文件。",
+                        "error_version_mismatch": "不支持的文件版本，期望版本 {version}。",
+                        "error_missing_tables": "文件中不包含任何表数据。",
+                        "error_user_mismatch": "此备份文件属于不同的账号，无法导入。",
+                        "error_invalid_json": "无效的 JSON 文件，请选择有效的 VRCX 数据库备份文件。",
+                        "import_log_title": "导入日志",
+                        "import_log_empty": "暂无导入记录。"
                     }
                 },
                 "photon": {
@@ -3311,3 +3337,4 @@
         "info_sync": "同步"
     }
 }
+

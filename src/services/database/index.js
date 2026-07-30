@@ -22,7 +22,7 @@ import sqliteService from '../sqlite.js';
 const dbVars = {
     userId: '',
     userPrefix: '',
-    maxTableSize: 500,
+    maxTableSize: -1,
     searchTableSize: 5000
 };
 

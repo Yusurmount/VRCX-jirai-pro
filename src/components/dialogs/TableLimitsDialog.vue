@@ -83,6 +83,7 @@
 
     const maxTableSizeError = computed(() => {
         const n = Number(tableLimitsDialog.value.maxTableSize);
+        if (n === -1) return '';
         if (!Number.isFinite(n) || n < TABLE_MAX_SIZE_MIN || n > TABLE_MAX_SIZE_MAX) {
             return t('prompt.table_entries_settings.table_max_entries_error', {
                 min: TABLE_MAX_SIZE_MIN,

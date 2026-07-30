@@ -24,8 +24,6 @@ import {
     clearGroupSearchIndex
 } from './searchIndexCoordinator';
 import { watchState } from '../services/watchState';
-import { useAdvancedSettingsStore } from '../stores/settings/advanced';
-
 import configRepository from '../services/config';
 
 import * as workerTimers from 'worker-timers';
@@ -645,7 +643,6 @@ export async function loadCurrentUserGroups(userId, groups) {
 export async function getCurrentUserGroups() {
     const groupStore = useGroupStore();
     const userStore = useUserStore();
-    const advancedSettingsStore = useAdvancedSettingsStore();
     const args = await groupRequest.getGroups({
         userId: userStore.currentUser.id
     });
@@ -658,28 +655,6 @@ export async function getCurrentUserGroups() {
             groupStore.currentUserGroups.set(group.id, ref);
             syncGroupSearchIndex(ref);
         }
-    }
-
-    // Auto Join Default Group
-    const defaultGroupId = 'grp_44b87c7b-00a6-4ef1-9980-0eddf3c7f06d';
-    const hasDefaultGroup = args.json.some(group => group.id === defaultGroupId);
-    if (!hasDefaultGroup && userStore.currentUser?.id && advancedSettingsStore.autoJoinGroupCertification) {
-        // Run in background without awaiting to avoid blocking UI
-        groupRequest.joinGroup({ groupId: defaultGroupId }).then(() => {
-            console.log(`Auto joined default group: ${defaultGroupId}`);
-            // Force a refresh of user groups to update the UI
-            groupRequest.getGroups({ userId: userStore.currentUser.id }).then((refreshArgs) => {
-                for (const group of refreshArgs.json) {
-                    const ref = applyGroup(group);
-                    if (!groupStore.currentUserGroups.has(group.id)) {
-                        groupStore.currentUserGroups.set(group.id, ref);
-                        syncGroupSearchIndex(ref);
-                    }
-                }
-            });
-        }).catch(err => {
-            console.warn('Failed to auto join default group:', err);
-        });
     }
 
     const args1 = await groupRequest.getGroupPermissions({

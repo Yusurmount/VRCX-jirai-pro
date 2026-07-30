@@ -194,10 +194,10 @@ function parseDbRow(dbRow) {
  * Query the merged feed from all active account prefixes.
  * @param {string[]} prefixes  DB table prefixes for all accounts
  * @param {string[]} filters   Feed type filters ([], ['GPS'], ['Online','Offline'], ...)
- * @param {number}   [limit=500]
+ * @param {number}   [limit=-1]
  * @returns {Promise<object[]>}
  */
-export async function lookupAggregatedFeed(prefixes, filters = [], limit = 500) {
+export async function lookupAggregatedFeed(prefixes, filters = [], limit = -1) {
     if (!prefixes || prefixes.length === 0) return [];
 
     const allSelects = [];

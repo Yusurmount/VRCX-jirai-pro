@@ -24,10 +24,6 @@
                 :description="t('view.settings.advanced.advanced.self_invite.description')">
                 <Switch :model-value="selfInviteOverride" @update:modelValue="setSelfInviteOverride" />
             </SettingsItem>
-            
-            <SettingsItem :label="t('view.settings.advanced.advanced.auto_join_group_certification.header')">
-                <Switch :model-value="autoJoinGroupCertification" @update:modelValue="setAutoJoinGroupCertification" />
-            </SettingsItem>
         </SettingsGroup>
 
         <SettingsGroup :title="t('view.settings.advanced_groups.security.header')">
@@ -110,7 +106,9 @@
                 <Button
                     size="sm"
                     variant="outline"
-                    @click="openExternalLink('https://github.com/FuLuTang/VRCX-jirai/wiki/Launch-parameters-&-VRCX.json')"
+                    @click="
+                        openExternalLink('https://github.com/FuLuTang/VRCX-jirai/wiki/Launch-parameters-&-VRCX.json')
+                    "
                     >{{ t('view.settings.advanced.advanced.launch_commands.docs') }}</Button
                 >
                 <Button
@@ -231,6 +229,24 @@
                     <span v-text="sqliteTableSizes.event"></span
                 ></span>
             </div>
+
+            <SettingsItem
+                :label="t('view.settings.advanced.advanced.db_export.button')"
+                :description="t('view.settings.advanced.advanced.db_export.description')">
+                <Button size="sm" variant="outline" :disabled="exportInProgress" @click="confirmExport">
+                    <Download class="h-4 w-4 mr-1" />
+                    {{ t('view.settings.advanced.advanced.db_export.button') }}
+                </Button>
+            </SettingsItem>
+
+            <SettingsItem
+                :label="t('view.settings.advanced.advanced.db_import.button')"
+                :description="t('view.settings.advanced.advanced.db_import.description')">
+                <Button size="sm" variant="outline" :disabled="importInProgress" @click="confirmImport">
+                    <Upload class="h-4 w-4 mr-1" />
+                    {{ t('view.settings.advanced.advanced.db_import.button') }}
+                </Button>
+            </SettingsItem>
         </SettingsGroup>
 
         <SettingsGroup :title="t('view.settings.advanced.advanced.database_cleanup.header')">
@@ -334,6 +350,169 @@
             </DialogContent>
         </Dialog>
 
+        <!-- Export Progress Dialog -->
+        <Dialog
+            :open="isExportDialogVisible"
+            @update:open="
+                (open) => {
+                    if (!open) isExportDialogVisible = false;
+                }
+            ">
+            <DialogContent class="x-dialog sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{{ t('view.settings.advanced.advanced.db_export.confirm_title') }}</DialogTitle>
+                </DialogHeader>
+                <div class="flex flex-col gap-4 py-2">
+                    <template v-if="exportPhase === 'confirm'">
+                        <p class="text-sm text-muted-foreground">
+                            {{ t('view.settings.advanced.advanced.db_export.confirm_message') }}
+                        </p>
+                    </template>
+                    <template v-else-if="exportPhase === 'in_progress'">
+                        <p class="text-sm">
+                            {{
+                                t('view.settings.advanced.advanced.db_export.exporting', {
+                                    current: exportProgress.current,
+                                    total: exportProgress.total
+                                })
+                            }}
+                        </p>
+                        <div class="w-full bg-secondary rounded-full h-2">
+                            <div
+                                class="bg-primary h-2 rounded-full transition-all"
+                                :style="{ width: exportProgress.percent + '%' }"></div>
+                        </div>
+                    </template>
+                    <template v-else-if="exportPhase === 'done'">
+                        <Alert variant="default" class="mb-2 border-green-500/50">
+                            <AlertDescription>
+                                {{ t('view.settings.advanced.advanced.db_export.success', { path: exportResult }) }}
+                            </AlertDescription>
+                        </Alert>
+                    </template>
+                    <template v-else-if="exportPhase === 'error'">
+                        <Alert variant="destructive" class="mb-2">
+                            <AlertDescription>
+                                {{ t('view.settings.advanced.advanced.db_export.error', { error: exportError }) }}
+                            </AlertDescription>
+                        </Alert>
+                    </template>
+                </div>
+                <DialogFooter>
+                    <template v-if="exportPhase === 'confirm'">
+                        <Button variant="outline" size="sm" @click="isExportDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                        <Button size="sm" @click="handleExport">
+                            <Download class="h-4 w-4 mr-1" />
+                            {{ t('view.settings.advanced.advanced.db_export.button') }}
+                        </Button>
+                    </template>
+                    <template v-else-if="exportPhase === 'in_progress'">
+                        <Button variant="outline" size="sm" disabled>
+                            {{
+                                t('view.settings.advanced.advanced.db_export.exporting', {
+                                    current: exportProgress.current,
+                                    total: exportProgress.total
+                                })
+                            }}
+                        </Button>
+                    </template>
+                    <template v-else>
+                        <Button variant="outline" size="sm" @click="isExportDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                    </template>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Import Dialog -->
+        <Dialog
+            :open="isImportDialogVisible"
+            @update:open="
+                (open) => {
+                    if (!open) isImportDialogVisible = false;
+                }
+            ">
+            <DialogContent class="x-dialog sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{{ t('view.settings.advanced.advanced.db_import.confirm_title') }}</DialogTitle>
+                </DialogHeader>
+                <div class="flex flex-col gap-4 py-2">
+                    <template v-if="importPhase === 'confirm'">
+                        <p class="text-sm text-muted-foreground">
+                            {{ t('view.settings.advanced.advanced.db_import.confirm_message') }}
+                        </p>
+                    </template>
+                    <template v-else-if="importPhase === 'reading'">
+                        <p class="text-sm">{{ t('view.settings.advanced.advanced.db_import.reading') }}</p>
+                        <Spinner class="h-5 w-5 mx-auto" />
+                    </template>
+                    <template v-else-if="importPhase === 'importing'">
+                        <p class="text-sm">
+                            {{
+                                t('view.settings.advanced.advanced.db_import.importing', {
+                                    progress: Math.round(importProgressPercent)
+                                })
+                            }}
+                        </p>
+                        <div class="w-full bg-secondary rounded-full h-2">
+                            <div
+                                class="bg-primary h-2 rounded-full transition-all"
+                                :style="{ width: importProgressPercent + '%' }"></div>
+                        </div>
+                    </template>
+                    <template v-else-if="importPhase === 'done'">
+                        <Alert variant="default" class="mb-2 border-green-500/50">
+                            <AlertDescription>
+                                {{
+                                    t('view.settings.advanced.advanced.db_import.success', {
+                                        importedCount: importResult.importedCount,
+                                        tablesProcessed: importResult.tablesProcessed
+                                    })
+                                }}
+                            </AlertDescription>
+                        </Alert>
+                    </template>
+                    <template v-else-if="importPhase === 'error'">
+                        <Alert variant="destructive" class="mb-2">
+                            <AlertDescription>
+                                {{ t('view.settings.advanced.advanced.db_import.error', { error: importError }) }}
+                            </AlertDescription>
+                        </Alert>
+                    </template>
+                </div>
+                <DialogFooter>
+                    <template v-if="importPhase === 'confirm'">
+                        <Button variant="outline" size="sm" @click="isImportDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                        <Button size="sm" @click="handleImport">
+                            <Upload class="h-4 w-4 mr-1" />
+                            {{ t('view.settings.advanced.advanced.db_import.button') }}
+                        </Button>
+                    </template>
+                    <template v-else-if="importPhase === 'reading' || importPhase === 'importing'">
+                        <Button variant="outline" size="sm" disabled>
+                            {{
+                                importPhase === 'reading'
+                                    ? t('view.settings.advanced.advanced.db_import.reading')
+                                    : t('view.settings.advanced.advanced.db_import.importing', {
+                                          progress: Math.round(importProgressPercent)
+                                      })
+                            }}
+                        </Button>
+                    </template>
+                    <template v-else>
+                        <Button variant="outline" size="sm" @click="isImportDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                    </template>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         <SettingsGroup :title="t('view.settings.advanced_groups.diagnostics.header')">
             <SettingsItem :label="t('view.profile.game_info.online_users')">
                 <div class="flex items-center gap-2">
@@ -385,13 +564,15 @@
 </template>
 
 <script setup>
-    import { Trash2, TriangleAlert } from 'lucide-vue-next';
+    import { Trash2, TriangleAlert, Download, Upload } from 'lucide-vue-next';
     import { computed, reactive, ref } from 'vue';
+    import { toast } from 'vue-sonner';
     import { Button } from '@/components/ui/button';
     import { Switch } from '@/components/ui/switch';
     import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
     import { Alert, AlertDescription } from '@/components/ui/alert';
     import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+    import { Spinner } from '@/components/ui/spinner';
     import { storeToRefs } from 'pinia';
     import { useI18n } from 'vue-i18n';
 
@@ -415,6 +596,7 @@
     import { disableGameLogDialog } from '@/coordinators/gameLogCoordinator';
     import { clearVRCXCache } from '@/coordinators/vrcxCoordinator';
     import { openExternalLink } from '@/shared/utils';
+    import { exportDatabaseData, importDatabaseData } from '@/services/database/exportImport';
 
     import PhotonSettings from '../PhotonSettings.vue';
     import RegistryBackupDialog from '../../../Tools/dialogs/RegistryBackupDialog.vue';
@@ -464,8 +646,7 @@
         sqliteTableSizes,
         avatarAutoCleanup,
         purgeInProgress,
-        sentryErrorReporting,
-        autoJoinGroupCertification
+        sentryErrorReporting
     } = storeToRefs(advancedSettingsStore);
 
     const {
@@ -481,14 +662,30 @@
         setAvatarAutoCleanup,
         purgeAvatarFeedData,
         promptAutoClearVRCXCacheFrequency,
-        setSentryErrorReporting,
-        setAutoJoinGroupCertification
+        setSentryErrorReporting
     } = advancedSettingsStore;
 
     const configTreeData = ref({});
     const visits = ref(null);
     const selectedPurgePeriod = ref('180');
     const isPurgeDialogVisible = ref(false);
+
+    // Database Export/Import state
+    const isExportDialogVisible = ref(false);
+    const exportPhase = ref('confirm'); // 'confirm' | 'in_progress' | 'done' | 'error'
+    const exportInProgress = ref(false);
+    const exportProgress = reactive({ current: 0, total: 1, percent: 0 });
+    const exportResult = ref('');
+    const exportError = ref('');
+
+    const isImportDialogVisible = ref(false);
+    const importPhase = ref('confirm'); // 'confirm' | 'reading' | 'importing' | 'done' | 'error'
+    const importInProgress = ref(false);
+    const importProgressPercent = ref(0);
+    const importResult = reactive({ importedCount: 0, tablesProcessed: 0 });
+    const importError = ref('');
+
+    const userStore = useUserStore();
 
     const cacheSize = reactive({
         cachedUsers: 0,
@@ -505,6 +702,99 @@
         const days = selectedPurgePeriod.value === 'all' ? null : parseInt(selectedPurgePeriod.value, 10);
         isPurgeDialogVisible.value = false;
         purgeAvatarFeedData(days);
+    }
+
+    /**
+     * Open export confirmation dialog
+     */
+    function confirmExport() {
+        exportPhase.value = 'confirm';
+        exportResult.value = '';
+        exportError.value = '';
+        exportProgress.current = 0;
+        exportProgress.total = 1;
+        exportProgress.percent = 0;
+        isExportDialogVisible.value = true;
+    }
+
+    /**
+     * Execute database export
+     */
+    async function handleExport() {
+        const userId = userStore.currentUser?.id || '';
+        exportPhase.value = 'in_progress';
+        exportInProgress.value = true;
+
+        const result = await exportDatabaseData(userId, (current, total) => {
+            exportProgress.current = current;
+            exportProgress.total = total;
+            exportProgress.percent = total > 0 ? Math.round((current / total) * 100) : 0;
+        });
+
+        exportInProgress.value = false;
+
+        if (result.success) {
+            exportPhase.value = 'done';
+            exportResult.value = result.path;
+            toast.success(t('view.settings.advanced.advanced.db_export.success', { path: result.path }));
+        } else if (result.error === 'cancelled') {
+            isExportDialogVisible.value = false;
+            toast(t('view.settings.advanced.advanced.db_export.error_cancelled'));
+        } else {
+            exportPhase.value = 'error';
+            exportError.value = result.error;
+            toast.error(t('view.settings.advanced.advanced.db_export.error', { error: result.error }));
+        }
+    }
+
+    /**
+     * Open import confirmation dialog
+     */
+    function confirmImport() {
+        importPhase.value = 'confirm';
+        importProgressPercent.value = 0;
+        importResult.importedCount = 0;
+        importResult.tablesProcessed = 0;
+        importError.value = '';
+        isImportDialogVisible.value = true;
+    }
+
+    /**
+     * Execute database import
+     */
+    async function handleImport() {
+        const userId = userStore.currentUser?.id || '';
+        importInProgress.value = true;
+
+        const result = await importDatabaseData(userId, (state) => {
+            if (state.phase === 'reading') {
+                importPhase.value = 'reading';
+            } else if (state.phase === 'importing') {
+                importPhase.value = 'importing';
+                importProgressPercent.value = state.progress * 100;
+            }
+        });
+
+        importInProgress.value = false;
+
+        if (result.success) {
+            importPhase.value = 'done';
+            importResult.importedCount = result.importedCount;
+            importResult.tablesProcessed = result.tablesProcessed;
+            toast.success(
+                t('view.settings.advanced.advanced.db_import.success', {
+                    importedCount: result.importedCount,
+                    tablesProcessed: result.tablesProcessed
+                })
+            );
+        } else if (result.error === 'cancelled') {
+            isImportDialogVisible.value = false;
+            toast(t('view.settings.advanced.advanced.db_import.error_cancelled'));
+        } else {
+            importPhase.value = 'error';
+            importError.value = result.error;
+            toast.error(t('view.settings.advanced.advanced.db_import.error', { error: result.error }));
+        }
     }
 
     /**
@@ -543,3 +833,4 @@
         });
     }
 </script>
+

@@ -189,6 +189,21 @@ ipcMain.handle('dialog:openFile', async () => {
     return null;
 });
 
+ipcMain.handle('dialog:openJsonFile', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [
+            { name: 'VRCX Database Backup', extensions: ['json'] },
+            { name: 'All Files', extensions: ['*'] }
+        ]
+    });
+
+    if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+    }
+    return null;
+});
+
 ipcMain.handle('dialog:openDirectory', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory']
@@ -225,6 +240,15 @@ ipcMain.handle('app:writeFile', async (_event, filePath, buffer) => {
         return true;
     } catch (e) {
         console.error('app:writeFile error:', e);
+        throw e;
+    }
+});
+
+ipcMain.handle('app:readFile', async (_event, filePath) => {
+    try {
+        return fs.readFileSync(filePath, 'utf-8');
+    } catch (e) {
+        console.error('app:readFile error:', e);
         throw e;
     }
 });
@@ -525,7 +549,6 @@ function writeOverlayFrame(imageBuffer) {
         }
     }
 }
-
 
 function destroyTray() {
     if (tray) {
@@ -986,3 +1009,4 @@ app.on('window-all-closed', function () {
         app.quit();
     }
 });
+

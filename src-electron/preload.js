@@ -49,11 +49,15 @@ contextBridge.exposeInMainWorld('electron', {
     setTrayIconNotification: (notify) =>
         ipcRenderer.invoke('app:setTrayIconNotification', notify),
     openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
+    openJsonFileDialog: () =>
+        ipcRenderer.invoke('dialog:openJsonFile'),
     openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
     saveFileDialog: (defaultName, formatLabel) =>
         ipcRenderer.invoke('dialog:saveFile', defaultName, formatLabel),
     writeFile: (filePath, buffer) =>
         ipcRenderer.invoke('app:writeFile', filePath, buffer),
+    readFile: (filePath) =>
+        ipcRenderer.invoke('app:readFile', filePath),
     onWindowPositionChanged: (callback) =>
         registerManagedListener('setWindowPosition', callback),
     onWindowSizeChanged: (callback) =>

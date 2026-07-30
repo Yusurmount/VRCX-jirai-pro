@@ -1206,9 +1206,6 @@
                         "header": "Primary Password",
                         "description": "Encrypt Password (Disables Auto Login)"
                     },
-                    "auto_join_group_certification": {
-                        "header": "Certification"
-                    },
                     "relaunch_vrchat": {
                         "header": "Auto Relaunch VRChat After Crash",
                         "description": "Automatically relaunch and rejoin the last instance after a crash."
@@ -1368,6 +1365,35 @@
                         "description": "Open or set the folder for VRChat content such as Prints and Stickers.",
                         "set_folder": "Set Folder",
                         "reset_override": "Reset"
+                    },
+                    "db_export": {
+                        "button": "Export Database",
+                        "description": "Export all database data (user config, history, cache, etc.) to a JSON file.",
+                        "confirm_title": "Export Database Data",
+                        "confirm_message": "This will export all database data including feed history, game logs, cached data, favorites, notes, and all other application data. Sensitive authentication information will not be included. Continue?",
+                        "exporting": "Exporting database... ({current}/{total} tables)",
+                        "success": "Database exported successfully to:\n{path}",
+                        "error": "Export failed: {error}",
+                        "error_cancelled": "Export cancelled."
+                    },
+                    "db_import": {
+                        "button": "Import Database",
+                        "description": "Import database data from a previously exported JSON file. Only files from the same account are accepted.",
+                        "confirm_title": "Import Database Data",
+                        "confirm_message": "This will import data from the selected backup file and merge it with your existing data. Existing data will be preserved and new data will be added or updated. Continue?",
+                        "reading": "Reading import file...",
+                        "importing": "Importing data... ({progress}%)",
+                        "success": "Import completed successfully.\n{importedCount} records imported across {tablesProcessed} tables.",
+                        "error": "Import failed: {error}",
+                        "error_cancelled": "Import cancelled.",
+                        "error_invalid_format": "Invalid file format. Please select a valid VRCX database backup file.",
+                        "error_missing_metadata": "File is missing metadata. It may be corrupted or not a valid VRCX backup.",
+                        "error_version_mismatch": "Unsupported file version. Expected version {version}.",
+                        "error_missing_tables": "File contains no table data.",
+                        "error_user_mismatch": "This backup file belongs to a different account and cannot be imported.",
+                        "error_invalid_json": "Invalid JSON file. Please select a valid VRCX database backup file.",
+                        "import_log_title": "Import Log",
+                        "import_log_empty": "No import records."
                     }
                 },
                 "photon": {

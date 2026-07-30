@@ -42,7 +42,11 @@ declare global {
             getNoUpdater: () => Promise<boolean>;
             setTrayIconNotification: (notify: boolean) => Promise<void>;
             openFileDialog: () => Promise<string>;
+            openJsonFileDialog: () => Promise<string>;
             openDirectoryDialog: () => Promise<string>;
+            saveFileDialog: (defaultName: string, formatLabel?: string) => Promise<string>;
+            writeFile: (filePath: string, buffer: ArrayBuffer) => Promise<boolean>;
+            readFile: (filePath: string) => Promise<string>;
             desktopNotification: (
                 displayName: string,
                 body?: string,
