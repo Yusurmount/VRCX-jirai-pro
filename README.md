@@ -1,10 +1,10 @@
 <div align="center">
 
-# VRCX-Jirai-Pro 加强版
+# VRCX-Pro
 
 </div>
 
-这是 [VRCX-jirai](https://github.com/Yusurmount/VRCX-jirai-pro) 的加强版本。
+这是 [VRCX-jirai](https://github.com/Yusurmount/VRCX-jirai-pro) 的扩展版本。
 
 > 叠甲：`功能仅供娱乐，勿用非法用途!`
 > 所有的功能都是基于 VRCX 的原版数据库和原版接口API，没有实现任何有关“不该获取到的信息”。
