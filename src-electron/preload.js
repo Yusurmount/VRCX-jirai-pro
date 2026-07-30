@@ -58,6 +58,10 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke('app:writeFile', filePath, buffer),
     readFile: (filePath) =>
         ipcRenderer.invoke('app:readFile', filePath),
+    machineEncrypt: (plaintext) =>
+        ipcRenderer.invoke('app:machineEncrypt', plaintext),
+    machineDecrypt: (encryptedData) =>
+        ipcRenderer.invoke('app:machineDecrypt', encryptedData),
     onWindowPositionChanged: (callback) =>
         registerManagedListener('setWindowPosition', callback),
     onWindowSizeChanged: (callback) =>

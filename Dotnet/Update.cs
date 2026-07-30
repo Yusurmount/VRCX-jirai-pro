@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading;
@@ -199,28 +200,42 @@ namespace VRCX
                 throw new Exception("Downloaded file size does not match expected size");
             }
 
+            // Validate download URL is from a trusted source
+            var trustedPrefixes = new[]
+            {
+                "https://github.com/vrcx-team/",
+                "https://api.github.com/repos/vrcx-team/",
+                "https://objects.githubusercontent.com/"
+            };
+            if (!trustedPrefixes.Any(p => fileUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+            {
+                File.Delete(TempDownload);
+                logger.Error($"Untrusted download source: {fileUrl}");
+                throw new Exception("Untrusted download source");
+            }
+
             if (string.IsNullOrEmpty(hashString))
             {
-                logger.Error("Hash string is empty, skipping hash check");
+                File.Delete(TempDownload);
+                logger.Error("Hash string is empty, hash check required");
+                throw new Exception("Hash string is required for update verification");
             }
-            else
-            {
-                logger.Info("Checking hash");
-                using (var sha256 = SHA256.Create())
-                await using (var stream = File.OpenRead(TempDownload))
-                {
-                    var fileHashBytes = await sha256.ComputeHashAsync(stream, _cancellationToken);
-                    var fileHashString = Convert.ToHexString(fileHashBytes);
-                    if (!hashString.Equals(fileHashString, StringComparison.OrdinalIgnoreCase))
-                    {
-                        logger.Error($"Hash check failed file:{fileHashString} web:{hashString}");
-                        throw new Exception("Hash check failed");
-                        // can't delete file yet because it's in use
-                    }
-                }
 
-                logger.Info("Hash check passed");
+            logger.Info("Checking hash");
+            using (var sha256 = SHA256.Create())
+            await using (var stream = File.OpenRead(TempDownload))
+            {
+                var fileHashBytes = await sha256.ComputeHashAsync(stream, _cancellationToken);
+                var fileHashString = Convert.ToHexString(fileHashBytes);
+                if (!hashString.Equals(fileHashString, StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.Error($"Hash check failed file:{fileHashString} web:{hashString}");
+                    throw new Exception("Hash check failed");
+                    // can't delete file yet because it's in use
+                }
             }
+
+            logger.Info("Hash check passed");
 
             if (string.IsNullOrEmpty(AppImagePath))
             {

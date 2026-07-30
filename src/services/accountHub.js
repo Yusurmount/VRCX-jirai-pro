@@ -199,7 +199,7 @@ export const accountHub = {
      * hot-swaps dbVars / userStore / friendStore.
      * @param {string} userId
      */
-    switchToAccount(userId) {
+    async switchToAccount(userId) {
         if (!userId || userId === _state.primaryId) {
             _restorePrimary();
             _state.viewMode = 'primary';
@@ -213,7 +213,7 @@ export const accountHub = {
         }
 
         // Snapshot primary state once (idempotent)
-        _snapshotPrimary();
+        await _snapshotPrimary();
 
         // Hot-swap dbVars so all SQL queries hit the secondary tables
         dbVars.userId = session.userId;
@@ -221,8 +221,8 @@ export const accountHub = {
 
         // Hot-swap global stores
         try {
-            const { useUserStore } = require('../stores/user.js');
-            const { useFriendStore } = require('../stores/friend.js');
+            const { useUserStore } = await import('../stores/user.js');
+            const { useFriendStore } = await import('../stores/friend.js');
             const userStore = useUserStore();
             const friendStore = useFriendStore();
 
@@ -246,7 +246,7 @@ export const accountHub = {
             }
 
             try {
-                const { useTrackedNonFriendsStore } = require('../stores/trackedNonFriends.js');
+                const { useTrackedNonFriendsStore } = await import('../stores/trackedNonFriends.js');
                 useTrackedNonFriendsStore().loadTrackedNonFriends();
             } catch (e) {
                 console.error('[accountHub] failed to swap trackedNonFriends', e);
@@ -310,12 +310,12 @@ function _computeUserPrefix(userId) {
  * Take a snapshot of the primary account's global state.
  * Safe to call multiple times – only the first call actually captures.
  */
-function _snapshotPrimary() {
+async function _snapshotPrimary() {
     if (_primarySnapshot) return; // already captured
 
     try {
-        const { useUserStore } = require('../stores/user.js');
-        const { useFriendStore } = require('../stores/friend.js');
+        const { useUserStore } = await import('../stores/user.js');
+        const { useFriendStore } = await import('../stores/friend.js');
         const userStore = useUserStore();
         const friendStore = useFriendStore();
 
@@ -342,9 +342,17 @@ function _snapshotPrimary() {
 function _restorePrimary() {
     if (!_primarySnapshot) return;
 
+    _restorePrimaryAsync().catch(e => {
+        console.error('[accountHub] _restorePrimary failed', e);
+    });
+}
+
+async function _restorePrimaryAsync() {
+    if (!_primarySnapshot) return;
+
     try {
-        const { useUserStore } = require('../stores/user.js');
-        const { useFriendStore } = require('../stores/friend.js');
+        const { useUserStore } = await import('../stores/user.js');
+        const { useFriendStore } = await import('../stores/friend.js');
         const userStore = useUserStore();
         const friendStore = useFriendStore();
 
@@ -369,7 +377,7 @@ function _restorePrimary() {
         }
 
         try {
-            const { useTrackedNonFriendsStore } = require('../stores/trackedNonFriends.js');
+            const { useTrackedNonFriendsStore } = await import('../stores/trackedNonFriends.js');
             useTrackedNonFriendsStore().loadTrackedNonFriends();
         } catch (e) {
             console.error('[accountHub] failed to restore trackedNonFriends', e);
@@ -391,9 +399,9 @@ export function initAccountHubWatcher() {
         (isLoggedIn) => {
             if (isLoggedIn) {
                 // Delay slightly so userStore.currentUser is available
-                Promise.resolve().then(() => {
+                Promise.resolve().then(async () => {
                     try {
-                        const { useUserStore } = require('../stores/user.js');
+                        const { useUserStore } = await import('../stores/user.js');
                         const userStore = useUserStore();
                         const userId = userStore.currentUser?.id;
                         if (userId) {

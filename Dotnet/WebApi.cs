@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -514,11 +515,95 @@ namespace VRCX
             return uniqueCookies.Values.ToList();
         }
 
+        // Allowed hosts for outbound HTTP requests (anti-SSRF)
+        private static readonly HashSet<string> AllowedRequestHosts = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "api.vrchat.cloud",
+            "assets.vrchat.com",
+            "github.com",
+            "api.github.com",
+            "objects.githubusercontent.com",
+            "raw.githubusercontent.com",
+            "avatars.vrchat.com",
+            "models.vrchat.com",
+            "localhost",
+            "127.0.0.1"
+        };
+
+        private bool IsUrlAllowed(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+                // Always allow HTTPS to VRChat and GitHub domains
+                if (string.Equals(uri.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (uri.Host == "api.vrchat.cloud" ||
+                        uri.Host.EndsWith(".vrchat.com") && !uri.IsLoopback ||
+                        uri.Host.EndsWith(".github.com") ||
+                        uri.Host.EndsWith(".githubusercontent.com") ||
+                        uri.Host == "objects.githubusercontent.com")
+                        return true;
+
+                    // Image and asset CDNs
+                    if (uri.Host.EndsWith(".vrchat.cloud") ||
+                        uri.Host.EndsWith(".vrchat.net"))
+                        return true;
+                }
+
+                // For non-VRChat hosts, check the allowed list
+                if (AllowedRequestHosts.Contains(uri.Host))
+                    return true;
+
+                // Block private/internal IPs
+                if (uri.IsLoopback)
+                    return true;
+
+                var ip = Dns.GetHostAddresses(uri.Host);
+                foreach (var address in ip)
+                {
+                    if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        var bytes = address.GetAddressBytes();
+                        // 10.0.0.0/8
+                        if (bytes[0] == 10) return false;
+                        // 172.16.0.0/12
+                        if (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) return false;
+                        // 192.168.0.0/16
+                        if (bytes[0] == 192 && bytes[1] == 168) return false;
+                        // 169.254.0.0/16 (link-local / cloud metadata)
+                        if (bytes[0] == 169 && bytes[1] == 254) return false;
+                        // 127.0.0.0/8
+                        if (bytes[0] == 127) return false;
+                    }
+                    // IPv6 loopback
+                    if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                    {
+                        if (address.Equals(IPAddress.IPv6Loopback)) return false;
+                        if (address.IsIPv6LinkLocal) return false;
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private async Task<Tuple<int, string>> ExecuteWithClient(HttpClient httpClient, IDictionary<string, object> options)
         {
             try
             {
                 var url = (string)options["url"];
+
+                // SSRF protection: validate URL against allowed hosts
+                if (!IsUrlAllowed(url))
+                {
+                    Logger.Error($"Blocked request to unauthorized URL: {url}");
+                    return new Tuple<int, string>(-1, "URL not allowed");
+                }
                 HttpRequestMessage request;
 
                 // Handle special upload types

@@ -14,6 +14,7 @@ const {
 const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const https = require('https');
+const crypto = require('crypto');
 
 //app.disableHardwareAcceleration();
 
@@ -126,7 +127,178 @@ interopApi.getDotNetObject('LogWatcher').Init();
 interopApi.getDotNetObject('SystemMonitorElectron').Init();
 interopApi.getDotNetObject('AppApiVrElectron').Init();
 
+// Whitelist of allowed className.methodName combinations for IPC
+const ALLOWED_IPC_METHODS = new Set([
+    // AppApiElectron
+    'AppApiElectron.Init',
+    'AppApiElectron.SetUserAgent',
+    'AppApiElectron.GetVRChatAppDataLocation',
+    'AppApiElectron.GetVRChatRegistryKey',
+    'AppApiElectron.GetVRChatRegistryKeyString',
+    'AppApiElectron.SetVRChatRegistryKey',
+    'AppApiElectron.SetVRChatRegistry',
+    'AppApiElectron.GetVRChatRegistry',
+    'AppApiElectron.GetVRChatRegistryJson',
+    'AppApiElectron.HasVRChatRegistryFolder',
+    'AppApiElectron.DeleteVRChatRegistryFolder',
+    'AppApiElectron.ReadVrcRegJsonFile',
+    'AppApiElectron.CustomCss',
+    'AppApiElectron.CustomScript',
+    'AppApiElectron.CurrentLanguage',
+    'AppApiElectron.CurrentCulture',
+    'AppApiElectron.GetColourFromUserID',
+    'AppApiElectron.GetColourBulk',
+    'AppApiElectron.GetVersion',
+    'AppApiElectron.GetLaunchCommand',
+    'AppApiElectron.GetZoom',
+    'AppApiElectron.SetZoom',
+    'AppApiElectron.ShowDevTools',
+    'AppApiElectron.FocusWindow',
+    'AppApiElectron.FlashWindow',
+    'AppApiElectron.ChangeTheme',
+    'AppApiElectron.CheckGameRunning',
+    'AppApiElectron.IsGameRunning',
+    'AppApiElectron.IsSteamVRRunning',
+    'AppApiElectron.QuitGame',
+    'AppApiElectron.VrcClosedGracefully',
+    'AppApiElectron.CheckForUpdateExe',
+    'AppApiElectron.DesktopNotification',
+    'AppApiElectron.XSNotification',
+    'AppApiElectron.SetStartup',
+    'AppApiElectron.OpenLink',
+    'AppApiElectron.OpenDiscordProfile',
+    'AppApiElectron.OpenFolderAndSelectItem',
+    'AppApiElectron.OpenShortcutFolder',
+    'AppApiElectron.OpenFolderSelectorDialog',
+    'AppApiElectron.OpenFileSelectorDialog',
+    'AppApiElectron.StartGameFromPath',
+    'AppApiElectron.CopyImageToClipboard',
+    'AppApiElectron.GetClipboard',
+    'AppApiElectron.GetImage',
+    'AppApiElectron.GetFileBase64',
+    'AppApiElectron.ResizeImageToFitLimits',
+    'AppApiElectron.MD5File',
+    'AppApiElectron.SignFile',
+    'AppApiElectron.FileLength',
+    'AppApiElectron.SendIpc',
+    'AppApiElectron.IPCAnnounceStart',
+    'AppApiElectron.SetTrayIconNotification',
+    'AppApiElectron.AddScreenshotMetadata',
+    'AppApiElectron.DeleteScreenshotMetadata',
+    'AppApiElectron.DeleteAllScreenshotMetadata',
+    'AppApiElectron.GetScreenshotMetadata',
+    'AppApiElectron.GetExtraScreenshotData',
+    'AppApiElectron.GetLastScreenshot',
+    'AppApiElectron.FindScreenshotsBySearch',
+    'AppApiElectron.GetVRChatPhotosLocation',
+    'AppApiElectron.GetVRChatUserModeration',
+    'AppApiElectron.SetVRChatUserModeration',
+    'AppApiElectron.OpenUGCPhotosFolder',
+    'AppApiElectron.CropAllPrints',
+    'AppApiElectron.CropPrint',
+    'AppApiElectron.ResizePrintImage',
+    'AppApiElectron.SetAppLauncherSettings',
+    'AppApiElectron.SetGameLaunchOptions',
+    'AppApiElectron.PopulateImageHosts',
+    'AppApiElectron.ExecuteVrOverlayFunction',
+    'AppApiElectron.GetDiscordId',
+    'AppApiElectron.WriteConfigFile',
+    'AppApiElectron.ReadConfigFileSafe',
+    'AppApiElectron.OpenCalendarFile',
+    'AppApiElectron.RestartApplication',
+    'AppApiElectron.DoFunny',
+    // VRCXStorage
+    'VRCXStorage.Load',
+    'VRCXStorage.Save',
+    'VRCXStorage.Get',
+    'VRCXStorage.Set',
+    'VRCXStorage.Delete',
+    'VRCXStorage.Has',
+    'VRCXStorage.GetAll',
+    'VRCXStorage.Clear',
+    // WebApi
+    'WebApi.Init',
+    'WebApi.ExecuteJson',
+    'WebApi.ClearCookies',
+    'WebApi.GetCookies',
+    'WebApi.SetCookies',
+    'WebApi.GetVersion',
+    'WebApi.CreateSecondaryClient',
+    'WebApi.DestroySecondaryClient',
+    'WebApi.GetSecondaryCookies',
+    'WebApi.SetSecondaryCookies',
+    'WebApi.ExecuteAsJson',
+    // SQLite - read/write with validation
+    'SQLite.ExecuteJson',
+    'SQLite.ExecuteNonQuery',
+    'SQLite.Execute',
+    // LogWatcher
+    'LogWatcher.Init',
+    'LogWatcher.Exit',
+    'LogWatcher.Reset',
+    'LogWatcher.SetDateTill',
+    'LogWatcher.Get',
+    'LogWatcher.GetLogLines',
+    // Discord
+    'Discord.Init',
+    'Discord.Exit',
+    // AssetBundleManager
+    'AssetBundleManager.Init',
+    'AssetBundleManager.Exit',
+    // AppApiVrElectron
+    'AppApiVrElectron.Init',
+    'AppApiVrElectron.SetActive',
+    // ProgramElectron
+    'ProgramElectron.PreInit',
+    'ProgramElectron.Init',
+    // SystemMonitorElectron
+    'SystemMonitorElectron.Init',
+    // Update
+    'Update.DownloadUpdate',
+    'Update.DownloadInstallRedist',
+    'Update.CancelUpdate',
+    'Update.Init'
+]);
+
 ipcMain.handle('callDotNetMethod', (event, className, methodName, args) => {
+    const key = `${className}.${methodName}`;
+    if (!ALLOWED_IPC_METHODS.has(key)) {
+        console.error(`Blocked IPC call to unauthorized method: ${key}`);
+        throw new Error(`Method not allowed: ${key}`);
+    }
+    // For SQLite query validation
+    if (className === 'SQLite') {
+        const sql = args && args[0];
+        if (typeof sql === 'string') {
+            const trimmedSql = sql.trimStart().toUpperCase();
+            if (methodName === 'ExecuteJson' || methodName === 'Execute') {
+                if (
+                    !trimmedSql.startsWith('SELECT') &&
+                    !trimmedSql.startsWith('PRAGMA')
+                ) {
+                    console.error(
+                        `Blocked non-SELECT SQL query via IPC: ${sql.substring(0, 100)}`
+                    );
+                    throw new Error('Only SELECT queries are allowed via IPC');
+                }
+            } else if (methodName === 'ExecuteNonQuery') {
+                // Block destructive SQL operations
+                if (
+                    /^\s*(DROP|ALTER|TRUNCATE|REINDEX|REPLACE)\b/i.test(sql) ||
+                    /^\s*DELETE\s+(?!FROM)/i.test(sql) || // DELETE without FROM
+                    /^\s*UPDATE\s+(?!\w+\s+SET)/i.test(sql) || // malformed UPDATE
+                    /;\s*(DROP|ALTER|TRUNCATE)/i.test(sql) // multi-statement with destructive commands
+                ) {
+                    console.error(
+                        `Blocked destructive SQL via IPC: ${sql.substring(0, 100)}`
+                    );
+                    throw new Error(
+                        'Destructive SQL operations are not allowed'
+                    );
+                }
+            }
+        }
+    }
     return interopApi.callMethod(className, methodName, args);
 });
 
@@ -234,9 +406,24 @@ ipcMain.handle('dialog:saveFile', async (_event, defaultName, formatLabel) => {
     return null;
 });
 
+// Allowed directory for file operations (userData path)
+const ALLOWED_FILE_DIR = path.resolve(app.getPath('userData'));
+
+function validateFilePath(filePath) {
+    const resolved = path.resolve(filePath);
+    if (!resolved.startsWith(ALLOWED_FILE_DIR)) {
+        console.error(
+            `Blocked file operation outside allowed directory: ${resolved}`
+        );
+        throw new Error('File path is outside the allowed directory');
+    }
+    return resolved;
+}
+
 ipcMain.handle('app:writeFile', async (_event, filePath, buffer) => {
     try {
-        fs.writeFileSync(filePath, Buffer.from(buffer));
+        const safePath = validateFilePath(filePath);
+        fs.writeFileSync(safePath, Buffer.from(buffer));
         return true;
     } catch (e) {
         console.error('app:writeFile error:', e);
@@ -246,7 +433,8 @@ ipcMain.handle('app:writeFile', async (_event, filePath, buffer) => {
 
 ipcMain.handle('app:readFile', async (_event, filePath) => {
     try {
-        return fs.readFileSync(filePath, 'utf-8');
+        const safePath = validateFilePath(filePath);
+        return fs.readFileSync(safePath, 'utf-8');
     } catch (e) {
         console.error('app:readFile error:', e);
         throw e;
@@ -334,6 +522,61 @@ ipcMain.handle('app:getNoUpdater', () => {
 
 ipcMain.handle('app:setTrayIconNotification', (event, notify) => {
     setTrayIconNotification(notify);
+});
+
+// ── Machine-bound credential encryption (M-4) ──
+// Generates a machine-specific encryption key stored in userData directory.
+// Used to encrypt credentials when no primary password is set.
+
+const MACHINE_KEY_PATH = path.join(
+    app.getPath('userData'),
+    '.vrcx_machine_key'
+);
+
+function getOrCreateMachineKey() {
+    try {
+        if (fs.existsSync(MACHINE_KEY_PATH)) {
+            const key = fs.readFileSync(MACHINE_KEY_PATH, 'utf-8').trim();
+            if (key.length >= 32) return Buffer.from(key, 'hex');
+        }
+    } catch (e) {
+        console.error('Error reading machine key:', e.message);
+    }
+    // Generate a new key
+    const key = crypto.randomBytes(32);
+    try {
+        fs.writeFileSync(MACHINE_KEY_PATH, key.toString('hex'), {
+            mode: 0o600
+        });
+    } catch (e) {
+        console.error('Error writing machine key:', e.message);
+    }
+    return key;
+}
+
+ipcMain.handle('app:machineEncrypt', async (_event, plaintext) => {
+    const key = getOrCreateMachineKey();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = cipher.update(plaintext, 'utf-8', 'hex');
+    encrypted += cipher.final('hex');
+    return iv.toString('hex') + ':' + encrypted;
+});
+
+ipcMain.handle('app:machineDecrypt', async (_event, encryptedData) => {
+    try {
+        const key = getOrCreateMachineKey();
+        const parts = encryptedData.split(':');
+        const iv = Buffer.from(parts[0], 'hex');
+        const encrypted = parts[1];
+        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+        let decrypted = decipher.update(encrypted, 'hex', 'utf-8');
+        decrypted += decipher.final('utf-8');
+        return decrypted;
+    } catch (e) {
+        console.error('Machine decrypt error:', e.message);
+        throw e;
+    }
 });
 
 function tryRelaunchWithArgs(args) {

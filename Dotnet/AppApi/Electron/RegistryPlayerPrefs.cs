@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using NLog;
 
+
 namespace VRCX
 {
     public partial class AppApiElectron
@@ -297,8 +298,8 @@ namespace VRCX
         {
             var processStartInfo = new ProcessStartInfo
             {
-                FileName = "/bin/bash",
-                Arguments = $"-c \"{wineCommand.Replace("\"", "\\\"")}\"",
+                FileName = winePath,
+                ArgumentList = { "reg" },
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -306,11 +307,45 @@ namespace VRCX
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8
             };
+            foreach (var part in SplitCommand(wineCommand))
+            {
+                processStartInfo.ArgumentList.Add(part);
+            }
             processStartInfo.Environment["WINEFSYNC"] = "1";
             processStartInfo.Environment["WINEPREFIX"] = winePrefix;
             //processStartInfo.Environment["WINEDEBUG"] = "-all";
 
             return processStartInfo;
+        }
+
+        private static List<string> SplitCommand(string command)
+        {
+            var parts = new List<string>();
+            var current = new StringBuilder();
+            bool inQuotes = false;
+            for (int i = 0; i < command.Length; i++)
+            {
+                var c = command[i];
+                if (c == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+                else if (c == ' ' && !inQuotes)
+                {
+                    if (current.Length > 0)
+                    {
+                        parts.Add(current.ToString());
+                        current.Clear();
+                    }
+                }
+                else
+                {
+                    current.Append(c);
+                }
+            }
+            if (current.Length > 0)
+                parts.Add(current.ToString());
+            return parts;
         }
 
         private string GetWineRegCommand(string command)

@@ -15,3 +15,4 @@ AI_GUIDE.md
 CLAUDE.md
 coverage/
 .sandbox-data/
+build-scripts/usr_*.json

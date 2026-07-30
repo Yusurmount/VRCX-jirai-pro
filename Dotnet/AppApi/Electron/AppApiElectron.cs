@@ -105,9 +105,9 @@ namespace VRCX
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "xclip",
-                    Arguments = $"-selection clipboard -t image/png -i \"{path}\"",
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    ArgumentList = { "-selection", "clipboard", "-t", "image/png", "-i", path }
                 }
             };
             try
