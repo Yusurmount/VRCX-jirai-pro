@@ -14,17 +14,19 @@
 > 开 🟡黄灯🔴红灯 即可使本软件核心功能失效
 
 ## 新功能
+
 **1. 数据导出**
 描述：支持各板块的数据导出  
-用处举例：扔给Ai分析好友动向  
+用处举例：扔给Ai分析好友动向
 
 **2. 数据备份与恢复**
 描述：在 设置 > 高级 > 数据库 中支持导出所有数据与导入所有数据  
-用处举例：需要重装系统时可导出数据防止数据丢失 / 在不同设备上使用VRCX时产生的数据可能不同，可手动同步  
+用处举例：需要重装系统时可导出数据防止数据丢失 / 在不同设备上使用VRCX时产生的数据可能不同，可手动同步
 
 > 正在缓慢开发其他功能中
 
 ## 其他修改
+
 - 移除 自动加群功能
 - 精简 语言列表，仅保留简中、繁中、英语语言
 - 移除 各个数据记录默认的500条限制
@@ -34,6 +36,7 @@
 
 - [数据库架构预览 (DATABASE_SCHEMA.md)](./docs/DATABASE_SCHEMA.md)
 - [数据刷新机制说明 (DATA_REFRESH.md)](./docs/DATA_REFRESH.md)
+- [安全审计报告 (SECURITY_AUDIT_REPORT.md)](./SECURITY_AUDIT_REPORT.md)
 
 ## 从源码构建
 
@@ -72,4 +75,3 @@ SOFTWARE.
 ```
 
 > VRCX-jirai-pro by Yusurmount is not endorsed by VRChat and does not reflect the views or opinions of VRChat or anyone officially involved in producing or managing VRChat properties. VRChat and all associated properties are trademarks or registered trademarks of VRChat Inc. VRChat © VRChat Inc.
-

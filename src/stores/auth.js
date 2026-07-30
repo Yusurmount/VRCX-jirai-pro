@@ -27,6 +27,7 @@ import { useUpdateLoopStore } from './updateLoop';
 import { useUserStore } from './user';
 import { useVrcxStore } from './vrcx';
 import { watchState } from '../services/watchState';
+import { accountHub } from '../services/accountHub';
 
 import configRepository from '../services/config';
 import security from '../services/security';
@@ -95,7 +96,6 @@ export const useAuthStore = defineStore('Auth', () => {
             twoFactorAuthDialogVisible.value = false;
             if (isLoggedIn) {
                 // Ignore watcher if we are in a hot-swapped secondary account context.
-                const { accountHub } = require('../services/accountHub.js');
                 if (accountHub.primaryId && currentUser.id && currentUser.id !== accountHub.primaryId) {
                     return;
                 }
@@ -423,11 +423,15 @@ export const useAuthStore = defineStore('Auth', () => {
                                 value
                             )
                             .then(async (pt) => {
+                                // Re-encrypt with machine key instead of storing plaintext
+                                const { encrypted, type } =
+                                    await encryptPasswordWithMachineKey(pt);
                                 credentialsToSave.value = {
                                     username:
                                         savedCredentials[userId].loginParams
                                             .username,
-                                    password: pt
+                                    password: encrypted,
+                                    encryptionType: type
                                 };
                                 await updateStoredUser(
                                     savedCredentials[userId].user
@@ -469,13 +473,35 @@ export const useAuthStore = defineStore('Auth', () => {
             const key = enablePrimaryPasswordDialog.value.password;
             const savedCredentials = await getAllSavedCredentials();
             for (const userId in savedCredentials) {
+                const storedPassword =
+                    savedCredentials[userId].loginParams.password;
+                const encryptionType =
+                    savedCredentials[userId].loginParams.encryptionType ||
+                    'none';
+                // Decrypt with machine key first if needed
+                let plaintext = storedPassword;
+                if (encryptionType === 'machineKey') {
+                    try {
+                        plaintext =
+                            await window.electron.machineDecrypt(
+                                storedPassword
+                            );
+                    } catch (e) {
+                        console.error(
+                            'Failed to decrypt with machine key:',
+                            e
+                        );
+                        continue;
+                    }
+                }
                 security
-                    .encrypt(savedCredentials[userId].loginParams.password, key)
+                    .encrypt(plaintext, key)
                     .then((ct) => {
                         credentialsToSave.value = {
                             username:
                                 savedCredentials[userId].loginParams.username,
-                            password: ct
+                            password: ct,
+                            encryptionType: 'primary'
                         };
                         updateStoredUser(savedCredentials[userId].user);
                     });
@@ -632,6 +658,7 @@ export const useAuthStore = defineStore('Auth', () => {
         loginForm.value.loading = true;
         try {
             let password = loginParams.password;
+            const encryptionType = loginParams.encryptionType || 'none';
             if (shouldTrackLoginNetworkIssueHint) {
                 resetLoginNetworkIssueHintStateIfCredentialsChanged({
                     username: loginParams.username,
@@ -646,6 +673,12 @@ export const useAuthStore = defineStore('Auth', () => {
                 } catch (err) {
                     toast.error(t('message.auth.incorrect_primary_password'));
                     throw err;
+                }
+            } else if (encryptionType === 'machineKey') {
+                try {
+                    password = await window.electron.machineDecrypt(password);
+                } catch (err) {
+                    console.error('Machine key decrypt failed in relogin:', err);
                 }
             }
 
@@ -697,6 +730,43 @@ export const useAuthStore = defineStore('Auth', () => {
             JSON.stringify(savedCredentials)
         );
         toast.success(t('message.auth.account_removed'));
+    }
+
+    /**
+     * Encrypts password using machine-bound key when no primary password is set.
+     * @param {string} password
+     * @returns {Promise<{encrypted: string, type: string}>}
+     */
+    async function encryptPasswordWithMachineKey(password) {
+        try {
+            const encrypted = await window.electron.machineEncrypt(password);
+            return { encrypted, type: 'machineKey' };
+        } catch (e) {
+            console.error('Machine key encryption failed, storing as-is:', e);
+            return { encrypted: password, type: 'none' };
+        }
+    }
+
+    /**
+     * Decrypts a password based on its encryption type.
+     * @param {string} password
+     * @param {string} encryptionType
+     * @param {string} [primaryPassword]
+     * @returns {Promise<string>}
+     */
+    async function decryptPassword(password, encryptionType, primaryPassword) {
+        if (encryptionType === 'machineKey') {
+            try {
+                return await window.electron.machineDecrypt(password);
+            } catch (e) {
+                console.error('Machine key decryption failed:', e);
+                return password;
+            }
+        }
+        if (encryptionType === 'primary' && primaryPassword) {
+            return await security.decrypt(password, primaryPassword);
+        }
+        return password;
     }
 
     /**
@@ -761,7 +831,8 @@ export const useAuthStore = defineStore('Auth', () => {
                                     websocket: loginForm.value.websocket,
                                     saveCredentials:
                                         loginForm.value.saveCredentials,
-                                    cipher: pwd
+                                    cipher: pwd,
+                                    encryptionType: 'primary'
                                 });
                             } catch (err) {
                                 if (
@@ -774,6 +845,28 @@ export const useAuthStore = defineStore('Auth', () => {
                         }
                     } catch {
                         // prompt cancelled or crypto failed
+                    }
+                } else if (loginForm.value.saveCredentials) {
+                    // Always encrypt credentials with machine key
+                    const { encrypted: pwd, type: encType } =
+                        await encryptPasswordWithMachineKey(
+                            loginForm.value.password
+                        );
+                    try {
+                        await authLogin({
+                            username: loginForm.value.username,
+                            password: loginForm.value.password,
+                            endpoint: loginForm.value.endpoint,
+                            websocket: loginForm.value.websocket,
+                            saveCredentials: loginForm.value.saveCredentials,
+                            cipher: pwd,
+                            encryptionType: encType
+                        });
+                    } catch (err) {
+                        if (shouldCountLoginFailureForNetworkHint(err)) {
+                            maybeShowLoginNetworkIssueHint();
+                        }
+                        throw err;
                     }
                 } else {
                     try {
@@ -936,7 +1029,8 @@ export const useAuthStore = defineStore('Auth', () => {
             endpoint,
             websocket,
             saveCredentials,
-            cipher
+            cipher,
+            encryptionType
         } = params;
         const auth = btoa(
             `${encodeURIComponent(username)}:${encodeURIComponent(password)}`
@@ -950,7 +1044,8 @@ export const useAuthStore = defineStore('Auth', () => {
                 username,
                 password,
                 endpoint,
-                websocket
+                websocket,
+                encryptionType: encryptionType || 'none'
             };
         }
         return request('auth/user', {

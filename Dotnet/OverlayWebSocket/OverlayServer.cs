@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
@@ -7,8 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using CefSharp;
+using System.Windows.Forms;
 using NLog;
 
 namespace VRCX;
@@ -25,9 +26,25 @@ public class OverlayServer
 
     private static OverlayVars _overlayVars;
 
+    // Shared secret token for WebSocket authentication
+    private static readonly string AuthToken = Guid.NewGuid().ToString("N");
+    private static readonly string AuthTokenFilePath;
+
     static OverlayServer()
     {
         Instance = new OverlayServer();
+        AuthTokenFilePath = Path.Combine(Path.GetTempPath(), "VRCX", "overlay_token");
+        try
+        {
+            var dir = Path.GetDirectoryName(AuthTokenFilePath);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(AuthTokenFilePath, AuthToken);
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Failed to write overlay auth token file: {ex.Message}");
+        }
     }
 
     public async Task Init()
@@ -88,6 +105,16 @@ public class OverlayServer
 
     private async Task ProcessRequest(HttpListenerContext listenerContext)
     {
+        // Verify authentication token from query string
+        var queryToken = listenerContext.Request.QueryString["token"];
+        if (!string.Equals(queryToken, AuthToken, StringComparison.Ordinal))
+        {
+            logger.Warn($"Overlay IPC connection rejected: invalid token (received: {queryToken?.Substring(0, Math.Min(8, queryToken.Length))}...)");
+            listenerContext.Response.StatusCode = 401;
+            listenerContext.Response.Close();
+            return;
+        }
+
         WebSocketContext webSocketContext;
         try
         {
