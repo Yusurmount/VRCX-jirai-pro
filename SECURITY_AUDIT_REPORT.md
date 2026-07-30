@@ -99,7 +99,7 @@ function safePath(filePath) {
 
 - **位置**：`Dotnet/SQLite.cs:49-53`
 - **类型**：SQL 注入 / 数据库操纵
-- **修复**：[`src-electron/main.js`](file:///f:/Users/12619/Documents/GitHub/VRCX-jirai/src-electron/main.js#L269-L291) 在 IPC 层添加 SQL 类型验证：`ExecuteJson`/`Execute` 仅允许 `SELECT`/`PRAGMA`；`ExecuteNonQuery` 阻止 DROP/ALTER/TRUNCATE 等破坏性操作
+- **修复**：[`src-electron/main.js`](file:///f:/Users/12619/Documents/GitHub/VRCX-jirai/src-electron/main.js#L266-L276) 在 IPC 层添加 SQL 类型验证，仅允许 `SELECT` 和 `PRAGMA` 语句通过
 
 ```csharp
 // SQLite.cs — 接受来自渲染进程的原始 SQL 字符串

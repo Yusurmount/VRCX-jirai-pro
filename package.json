@@ -1,5 +1,5 @@
 {
-    "name": "vrcx-jirai",
+    "name": "vrcx-pro",
     "version": "2026.03.28",
     "private": true,
     "description": "Friendship management tool for VRChat",
@@ -121,7 +121,7 @@
     },
     "build": {
         "appId": "app.vrcx",
-        "productName": "VRCX-Jirai",
+        "productName": "VRCX-Pro",
         "icon": "images/VRCX.png",
         "files": [
             "build/html/**/*",

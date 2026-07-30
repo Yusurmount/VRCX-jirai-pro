@@ -919,7 +919,12 @@
                     "disable_gpu_acceleration_tooltip": "仅在你“知道自己在做什么”时才应更改此选项，这可能会导致 SteamVR 叠加界面出现问题。但如果你遇到 UI 显示问题，那么可以尝试关闭此选项，重启 VRCX 生效",
                     "disable_vr_overlay_gpu_acceleration": "禁用 VR 叠加界面的GPU加速",
                     "proxy": "代理服务器设置",
-                    "startup_linux": "向 VRCX.desktop 启动文件添加 “--startup” 参数，以便在系统启动时将 VRCX 以最小化窗口的方式启动。"
+                    "startup_linux": "向 VRCX.desktop 启动文件添加 \"--startup\" 参数，以便在系统启动时将 VRCX 以最小化窗口的方式启动。",
+                    "restore_defaults": "恢复默认设置",
+                    "restore_defaults_confirm_title": "恢复默认设置",
+                    "restore_defaults_confirm_description": "确定要将所有首选项设置恢复为默认值吗？此操作不会影响您的用户数据和其他设置。",
+                    "restore_defaults_success": "首选项已成功恢复为默认值。",
+                    "restore_defaults_restart_notice": "部分设置（如 GPU 加速、代理等）可能需要重启应用才能生效。"
                 },
                 "favorites": {
                     "header": "星标好友筛选",
@@ -1438,6 +1443,20 @@
                         "error_invalid_json": "无效的 JSON 文件，请选择有效的 VRCX 数据库备份文件。",
                         "import_log_title": "导入日志",
                         "import_log_empty": "暂无导入记录。"
+                    },
+                    "db_reset": {
+                        "button": "重置数据库",
+                        "warning_title": "重置数据库",
+                        "warning_alert": "此操作不可逆！所有用户数据将被永久删除。",
+                        "warning_description": "此操作将删除数据库中 ALL 的用户数据，包括：",
+                        "warning_items": "动态历史、游戏日志、通知、收藏、备注/便签、模型历史、好友日志、缓存数据以及所有其他应用数据。",
+                        "warning_confirmation": "此操作无法撤销。强烈建议在继续之前备份您的数据库文件。",
+                        "input_label": "请输入以下内容以确认操作：{required}",
+                        "input_placeholder": "输入确认文本",
+                        "input_error": "确认文本不匹配，请重新输入。",
+                        "in_progress": "正在重置数据库...",
+                        "success": "数据库已成功重置。正在重启...",
+                        "error": "数据库重置失败：{error}"
                     }
                 },
                 "photon": {

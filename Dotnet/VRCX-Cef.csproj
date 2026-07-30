@@ -11,21 +11,21 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <AssemblyTitle>VRCX-Jirai</AssemblyTitle>
-    <Product>VRCX-Jirai</Product>
+    <AssemblyTitle>VRCX-Pro</AssemblyTitle>
+    <Product>VRCX-Pro</Product>
     <Copyright>vrcx-team, pypy, natsumi</Copyright>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Title>VRCX-Jirai</Title>
+    <Title>VRCX-Pro</Title>
     <Description>VRCX Jirai Edition</Description>
     <PackageIcon>..\images\VRCX.png</PackageIcon>
     <RepositoryUrl>https://github.com/Yusurmount/VRCX-jirai-pro</RepositoryUrl>
     <ResourceLanguages>en</ResourceLanguages>
     <SatelliteResourceLanguages>en-US;en</SatelliteResourceLanguages>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <AssemblyName>VRCX-Jirai</AssemblyName>
+    <AssemblyName>VRCX-Pro</AssemblyName>
     <RootNamespace>VRCX</RootNamespace>
-    <PackageId>VRCX-Jirai</PackageId>
+    <PackageId>VRCX-Pro</PackageId>
     <Company>Yusurmount</Company>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
@@ -116,7 +116,7 @@
   </Target>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;$(ProjectDir)..\Dotnet\build-tools\Topten.nvpatch.exe&quot; --enable &quot;$(ProjectDir)..\build\Cef\VRCX-Jirai.exe&quot;" />
+    <Exec Command="&quot;$(ProjectDir)..\Dotnet\build-tools\Topten.nvpatch.exe&quot; --enable &quot;$(ProjectDir)..\build\Cef\VRCX-Pro.exe&quot;" />
   </Target>
 
   <ItemGroup>
