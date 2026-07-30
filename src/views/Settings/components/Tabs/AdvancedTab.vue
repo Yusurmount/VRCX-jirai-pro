@@ -108,7 +108,7 @@
                     variant="outline"
                     @click="
                         openExternalLink(
-                            'https://github.com/Yusurmount/VRCX-jirai-pro/wiki/Launch-parameters-&-VRCX.json'
+                            'https://github.com/Yusurmount/VRCX-Pro/wiki/Launch-parameters-&-VRCX.json'
                         )
                     "
                     >{{ t('view.settings.advanced.advanced.launch_commands.docs') }}</Button
@@ -1172,19 +1172,26 @@
         const userId = userStore.currentUser?.id || '';
         importPhase.value = 'reading';
 
-        const result = await readImportFile(userId);
+        try {
+            const result = await readImportFile(userId);
 
-        if (result.success) {
-            importDataCache.value = result.data;
-            importFileSummary.value = result.summary;
-            importPhase.value = 'confirm';
-        } else if (result.error === 'cancelled') {
-            isImportDialogVisible.value = false;
-            toast(t('view.settings.advanced.advanced.db_import.error_cancelled'));
-        } else {
-            importError.value = result.error;
+            if (result.success) {
+                importDataCache.value = result.data;
+                importFileSummary.value = result.summary;
+                importPhase.value = 'confirm';
+            } else if (result.error === 'cancelled') {
+                isImportDialogVisible.value = false;
+                toast(t('view.settings.advanced.advanced.db_import.error_cancelled'));
+            } else {
+                importError.value = result.error;
+                importPhase.value = 'error';
+                toast.error(t('view.settings.advanced.advanced.db_import.error', { error: result.error }));
+            }
+        } catch (e) {
+            console.error('[Import] readImportFile threw:', e);
+            importError.value = e.message || String(e);
             importPhase.value = 'error';
-            toast.error(t('view.settings.advanced.advanced.db_import.error', { error: result.error }));
+            toast.error(t('view.settings.advanced.advanced.db_import.error', { error: importError.value }));
         }
     }
 

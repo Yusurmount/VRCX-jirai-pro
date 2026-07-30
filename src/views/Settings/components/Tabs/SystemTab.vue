@@ -12,7 +12,7 @@
 
             <div
                 class="flex flex-col gap-0.5 px-1 py-1 cursor-pointer"
-                @click="openExternalLink('https://github.com/Yusurmount/VRCX-jirai-pro/releases')">
+                @click="openExternalLink('https://github.com/Yusurmount/VRCX-Pro/releases')">
                 <div class="flex-1">
                     <span class="block truncate font-medium text-sm leading-[18px]">{{
                         t('view.settings.general.general.latest_app_version')
@@ -44,7 +44,7 @@
                     v-if="!noUpdater"
                     size="sm"
                     variant="outline"
-                    @click="openExternalLink('https://github.com/Yusurmount/VRCX-jirai-pro/releases')"
+                    @click="openExternalLink('https://github.com/Yusurmount/VRCX-Pro/releases')"
                     >{{ t('view.settings.general.vrcx_updater.change_build') }}</Button
                 >
             </div>
@@ -126,10 +126,10 @@
         <SettingsGroup :title="t('view.settings.general.contributors.header')">
             <div>
                 <img
-                    src="https://contrib.rocks/image?repo=Yusurmount/VRCX-jirai-pro"
+                    src="https://contrib.rocks/image?repo=Yusurmount/VRCX-Pro"
                     alt="Contributors"
                     class="cursor-pointer"
-                    @click="openExternalLink('https://github.com/Yusurmount/VRCX-jirai-pro/graphs/contributors')" />
+                    @click="openExternalLink('https://github.com/Yusurmount/VRCX-Pro/graphs/contributors')" />
             </div>
         </SettingsGroup>
 

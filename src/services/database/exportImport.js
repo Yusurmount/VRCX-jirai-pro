@@ -23,10 +23,18 @@ const EXPORT_FILE_EXT = '.vrcxdb.json';
 async function getSaveFilePath() {
     const defaultName = `VRCX_DB_${new Date().toISOString().slice(0, 10)}${EXPORT_FILE_EXT}`;
     if (window.electron?.saveFileDialog) {
-        return window.electron.saveFileDialog(defaultName, 'VRCX Database Backup');
+        return window.electron.saveFileDialog(
+            defaultName,
+            'VRCX Database Backup'
+        );
     }
-    if (AppApi?.OpenFileSelectorDialog) {
-        return AppApi.OpenFileSelectorDialog(defaultName, EXPORT_FILE_EXT, 'VRCX Database Backup');
+    if (AppApi?.SaveFileSelectorDialog) {
+        const filter = `VRCX Database Backup (*${EXPORT_FILE_EXT})|*${EXPORT_FILE_EXT}|All files (*.*)|*.*`;
+        return AppApi.SaveFileSelectorDialog(
+            defaultName,
+            EXPORT_FILE_EXT,
+            filter
+        );
     }
     return null;
 }
@@ -42,7 +50,8 @@ async function getOpenFilePath() {
         return window.electron.openFileDialog();
     }
     if (AppApi?.OpenFileSelectorDialog) {
-        return AppApi.OpenFileSelectorDialog('', EXPORT_FILE_EXT, 'VRCX Database Backup');
+        const filter = `VRCX Database Backup (*${EXPORT_FILE_EXT})|*${EXPORT_FILE_EXT}|All files (*.*)|*.*`;
+        return AppApi.OpenFileSelectorDialog('', EXPORT_FILE_EXT, filter);
     }
     return null;
 }
@@ -57,6 +66,10 @@ async function writeFile(filePath, content) {
         // Pass string directly; main process handles Buffer conversion
         return window.electron.writeFile(filePath, content);
     }
+    if (AppApi?.WriteFileText) {
+        AppApi.WriteFileText(filePath, content);
+        return true;
+    }
     throw new Error('No file writing method available');
 }
 
@@ -67,6 +80,9 @@ async function writeFile(filePath, content) {
 async function readFile(filePath) {
     if (window.electron?.readFile) {
         return window.electron.readFile(filePath);
+    }
+    if (AppApi?.ReadFileText) {
+        return AppApi.ReadFileText(filePath);
     }
     throw new Error('No file reading method available');
 }
@@ -80,16 +96,16 @@ async function readFile(filePath) {
 function getTableColumnInfo(tableName) {
     return new Promise((resolve, reject) => {
         const columns = [];
-        sqliteService.execute(
-            (row) => {
+        sqliteService
+            .execute((row) => {
                 if (Array.isArray(row)) {
                     columns.push({ name: row[1], pk: row[5] });
                 } else {
                     columns.push({ name: row.name, pk: row.pk });
                 }
-            },
-            `PRAGMA table_info("${tableName}")`
-        ).then(() => resolve(columns)).catch(reject);
+            }, `PRAGMA table_info("${tableName}")`)
+            .then(() => resolve(columns))
+            .catch(reject);
     });
 }
 
@@ -100,7 +116,7 @@ function getTableColumnInfo(tableName) {
  */
 async function getPrimaryKeyColumns(tableName) {
     const cols = await getTableColumnInfo(tableName);
-    return cols.filter(c => c.pk > 0).map(c => c.name);
+    return cols.filter((c) => c.pk > 0).map((c) => c.name);
 }
 
 /**
@@ -131,25 +147,23 @@ function queryAllRows(tableName) {
         const columns = [];
         const rows = [];
 
-        sqliteService.execute(
-            (row) => {
+        sqliteService
+            .execute((row) => {
                 const name = Array.isArray(row) ? row[1] : row.name;
                 if (name) columns.push(name);
-            },
-            `PRAGMA table_info("${tableName}")`
-        )
-        .then(() => {
-            return new Promise((resolveInner, rejectInner) => {
-                sqliteService.execute(
-                    (row) => {
-                        rows.push(rowToObject(row, columns));
-                    },
-                    `SELECT * FROM "${tableName}"`
-                ).then(() => resolveInner(rows)).catch(rejectInner);
-            });
-        })
-        .then(resolve)
-        .catch(reject);
+            }, `PRAGMA table_info("${tableName}")`)
+            .then(() => {
+                return new Promise((resolveInner, rejectInner) => {
+                    sqliteService
+                        .execute((row) => {
+                            rows.push(rowToObject(row, columns));
+                        }, `SELECT * FROM "${tableName}"`)
+                        .then(() => resolveInner(rows))
+                        .catch(rejectInner);
+                });
+            })
+            .then(resolve)
+            .catch(reject);
     });
 }
 
@@ -160,14 +174,14 @@ function queryAllRows(tableName) {
 function getAllTableNames() {
     return new Promise((resolve, reject) => {
         const tables = [];
-        sqliteService.execute(
-            (row) => {
+        sqliteService
+            .execute((row) => {
                 // row can be {name:"table1"} (object) or ["table1"] (array)
                 const name = Array.isArray(row) ? row[0] : row.name;
                 if (name) tables.push(name);
-            },
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-        ).then(() => resolve(tables)).catch(reject);
+            }, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            .then(() => resolve(tables))
+            .catch(reject);
     });
 }
 
@@ -224,20 +238,46 @@ export async function exportDatabaseData(userId, onProgress) {
  */
 function validateImportData(data, currentUserId) {
     if (!data || typeof data !== 'object') {
-        return { valid: false, reason: i18n.global.t('view.settings.advanced.advanced.db_import.error_invalid_format') };
+        return {
+            valid: false,
+            reason: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_invalid_format'
+            )
+        };
     }
     if (!data.metadata || !data.metadata.version) {
-        return { valid: false, reason: i18n.global.t('view.settings.advanced.advanced.db_import.error_missing_metadata') };
+        return {
+            valid: false,
+            reason: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_missing_metadata'
+            )
+        };
     }
     if (data.metadata.version !== EXPORT_VERSION) {
-        return { valid: false, reason: i18n.global.t('view.settings.advanced.advanced.db_import.error_version_mismatch', { version: EXPORT_VERSION }) };
+        return {
+            valid: false,
+            reason: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_version_mismatch',
+                { version: EXPORT_VERSION }
+            )
+        };
     }
     if (!data.tables || typeof data.tables !== 'object') {
-        return { valid: false, reason: i18n.global.t('view.settings.advanced.advanced.db_import.error_missing_tables') };
+        return {
+            valid: false,
+            reason: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_missing_tables'
+            )
+        };
     }
     // Only allow import from the same account
     if (data.metadata.userId && data.metadata.userId !== currentUserId) {
-        return { valid: false, reason: i18n.global.t('view.settings.advanced.advanced.db_import.error_user_mismatch') };
+        return {
+            valid: false,
+            reason: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_user_mismatch'
+            )
+        };
     }
     return { valid: true };
 }
@@ -307,7 +347,12 @@ export async function readImportFile(currentUserId) {
     try {
         data = JSON.parse(content);
     } catch (e) {
-        return { success: false, error: i18n.global.t('view.settings.advanced.advanced.db_import.error_invalid_json') };
+        return {
+            success: false,
+            error: i18n.global.t(
+                'view.settings.advanced.advanced.db_import.error_invalid_json'
+            )
+        };
     }
 
     const validation = validateImportData(data, currentUserId);
@@ -343,7 +388,10 @@ export async function readImportFile(currentUserId) {
  */
 export async function executeImport(data, strategies, onProgress) {
     const tableNames = Object.keys(data.tables);
-    const totalRows = tableNames.reduce((sum, name) => sum + data.tables[name].length, 0);
+    const totalRows = tableNames.reduce(
+        (sum, name) => sum + data.tables[name].length,
+        0
+    );
     let processedRows = 0;
 
     /** @type {ImportReport} */
@@ -366,7 +414,7 @@ export async function executeImport(data, strategies, onProgress) {
             if (rows.length === 0) continue;
 
             const columns = Object.keys(rows[0]);
-            const quotedColumns = columns.map(c => `"${c}"`).join(', ');
+            const quotedColumns = columns.map((c) => `"${c}"`).join(', ');
             const pkColumns = await getPrimaryKeyColumns(tableName);
 
             /** @type {TableReportEntry} */
@@ -379,33 +427,50 @@ export async function executeImport(data, strategies, onProgress) {
             };
 
             for (const row of rows) {
-                const values = columns.map(c => row[c]);
+                const values = columns.map((c) => row[c]);
 
                 // Check if record exists by primary key
                 let recordExists = false;
                 if (pkColumns.length > 0) {
-                    const whereClauses = pkColumns.map((pk, i) => `"${pk}"=@pk${i}`).join(' AND ');
+                    const whereClauses = pkColumns
+                        .map((pk, i) => `"${pk}"=@pk${i}`)
+                        .join(' AND ');
                     const pkParams = {};
-                    pkColumns.forEach((pk, i) => { pkParams[`@pk${i}`] = row[pk]; });
+                    pkColumns.forEach((pk, i) => {
+                        pkParams[`@pk${i}`] = row[pk];
+                    });
 
                     recordExists = await new Promise((resolve, reject) => {
                         let found = false;
-                        sqliteService.execute(
-                            () => { found = true; },
-                            `SELECT 1 FROM "${tableName}" WHERE ${whereClauses} LIMIT 1`,
-                            pkParams
-                        ).then(() => resolve(found)).catch(reject);
+                        sqliteService
+                            .execute(
+                                () => {
+                                    found = true;
+                                },
+                                `SELECT 1 FROM "${tableName}" WHERE ${whereClauses} LIMIT 1`,
+                                pkParams
+                            )
+                            .then(() => resolve(found))
+                            .catch(reject);
                     });
                 }
 
                 if (recordExists) {
                     if (strategies.conflictStrategy === 'overwrite') {
                         // Build UPDATE statement with named parameters
-                        const setClauses = columns.map((c, i) => `"${c}"=@v${i}`).join(', ');
-                        const whereClauses = pkColumns.map((pk, i) => `"${pk}"=@w${i}`).join(' AND ');
+                        const setClauses = columns
+                            .map((c, i) => `"${c}"=@v${i}`)
+                            .join(', ');
+                        const whereClauses = pkColumns
+                            .map((pk, i) => `"${pk}"=@w${i}`)
+                            .join(' AND ');
                         const updateParams = {};
-                        columns.forEach((c, i) => { updateParams[`@v${i}`] = row[c]; });
-                        pkColumns.forEach((pk, i) => { updateParams[`@w${i}`] = row[pk]; });
+                        columns.forEach((c, i) => {
+                            updateParams[`@v${i}`] = row[c];
+                        });
+                        pkColumns.forEach((pk, i) => {
+                            updateParams[`@w${i}`] = row[pk];
+                        });
                         // Also need all PK values for the WHERE clause
                         const sql = `UPDATE "${tableName}" SET ${setClauses} WHERE ${whereClauses}`;
                         await sqliteService.executeNonQuery(sql, updateParams);
@@ -417,7 +482,9 @@ export async function executeImport(data, strategies, onProgress) {
                     if (strategies.newDataStrategy === 'add') {
                         const paramNames = columns.map((_, i) => `@p${i}`);
                         const argsObj = {};
-                        paramNames.forEach((name, i) => { argsObj[name] = values[i]; });
+                        paramNames.forEach((name, i) => {
+                            argsObj[name] = values[i];
+                        });
                         const sql = `INSERT INTO "${tableName}" (${quotedColumns}) VALUES (${paramNames.join(', ')})`;
                         await sqliteService.executeNonQuery(sql, argsObj);
                         tableReport.added++;
@@ -427,7 +494,10 @@ export async function executeImport(data, strategies, onProgress) {
                 }
 
                 processedRows++;
-                onProgress?.({ phase: 'importing', progress: processedRows / totalRows });
+                onProgress?.({
+                    phase: 'importing',
+                    progress: processedRows / totalRows
+                });
             }
 
             report.tables.push(tableReport);
@@ -437,9 +507,15 @@ export async function executeImport(data, strategies, onProgress) {
 
         // Calculate totals
         report.success = true;
-        report.overwritten = report.tables.reduce((s, t) => s + t.overwritten, 0);
+        report.overwritten = report.tables.reduce(
+            (s, t) => s + t.overwritten,
+            0
+        );
         report.added = report.tables.reduce((s, t) => s + t.added, 0);
-        report.skippedExisting = report.tables.reduce((s, t) => s + t.skippedExisting, 0);
+        report.skippedExisting = report.tables.reduce(
+            (s, t) => s + t.skippedExisting,
+            0
+        );
         report.skippedNew = report.tables.reduce((s, t) => s + t.skippedNew, 0);
         report.totalProcessed = processedRows;
 
@@ -447,7 +523,12 @@ export async function executeImport(data, strategies, onProgress) {
     } catch (e) {
         await sqliteService.executeNonQuery('ROLLBACK');
         console.error('[Import] Transaction failed, rolled back:', e);
-        return { success: false, report, tablesProcessed: tableNames.length, error: e.message || String(e) };
+        return {
+            success: false,
+            report,
+            tablesProcessed: tableNames.length,
+            error: e.message || String(e)
+        };
     }
 }
 
@@ -458,18 +539,32 @@ export async function executeImport(data, strategies, onProgress) {
 export async function importDatabaseData(currentUserId, onProgress) {
     const fileResult = await readImportFile(currentUserId);
     if (!fileResult.success) {
-        return { success: false, importedCount: 0, tablesProcessed: 0, error: fileResult.error };
+        return {
+            success: false,
+            importedCount: 0,
+            tablesProcessed: 0,
+            error: fileResult.error
+        };
     }
 
-    const strategies = { conflictStrategy: 'overwrite', newDataStrategy: 'add' };
-    const execResult = await executeImport(fileResult.data, strategies, onProgress);
+    const strategies = {
+        conflictStrategy: 'overwrite',
+        newDataStrategy: 'add'
+    };
+    const execResult = await executeImport(
+        fileResult.data,
+        strategies,
+        onProgress
+    );
 
     if (execResult.success) {
         return {
             success: true,
-            importedCount: execResult.report.overwritten + execResult.report.added,
+            importedCount:
+                execResult.report.overwritten + execResult.report.added,
             tablesProcessed: execResult.tablesProcessed
         };
     }
     return execResult;
 }
+

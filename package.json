@@ -6,15 +6,15 @@
     "keywords": [
         "vrchat"
     ],
-    "homepage": "https://github.com/Yusurmount/VRCX-jirai-pro#readme",
+    "homepage": "https://github.com/Yusurmount/VRCX-Pro#readme",
     "bugs": {
-        "url": "https://github.com/Yusurmount/VRCX-jirai-pro/issues"
+        "url": "https://github.com/Yusurmount/VRCX-Pro/issues"
     },
     "license": "MIT",
     "author": "VRCX Team",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Yusurmount/VRCX-jirai-pro.git"
+        "url": "git+https://github.com/Yusurmount/VRCX-Pro.git"
     },
     "main": "src-electron/main.js",
     "scripts": {

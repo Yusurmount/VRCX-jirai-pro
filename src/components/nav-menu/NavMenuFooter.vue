@@ -20,7 +20,7 @@
                             <img
                                 class="h-6 w-6 cursor-pointer"
                                 :src="vrcxLogo"
-                                alt="VRCX"
+                                alt="VRCX-Pro"
                                 @click="emit('open-github')" />
                             <div class="flex min-w-0 flex-col">
                                 <button

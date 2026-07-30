@@ -50,15 +50,37 @@ export function dataToExcelBlob(data, sheetName = 'Data') {
 export async function saveFileViaDialog(defaultName, blob, formatLabel) {
     try {
         const buffer = await blob.arrayBuffer();
-        const result = await window.electron.saveFileDialog(
-            defaultName,
-            formatLabel ?? 'All Files'
-        );
-        if (!result) {
-            return { success: false, error: 'cancelled' };
+
+        // Electron path
+        if (window.electron?.saveFileDialog) {
+            const result = await window.electron.saveFileDialog(
+                defaultName,
+                formatLabel ?? 'All Files'
+            );
+            if (!result) {
+                return { success: false, error: 'cancelled' };
+            }
+            await window.electron.writeFile(result, buffer);
+            return { success: true };
         }
-        await window.electron.writeFile(result, buffer);
-        return { success: true };
+
+        // CefSharp path
+        if (AppApi?.SaveFileSelectorDialog && AppApi?.WriteFileBytes) {
+            const ext = defaultName.includes('.') ? defaultName.split('.').pop() : '';
+            const filter = `${formatLabel ?? 'All Files'} (*.${ext})|*.${ext}|All files (*.*)|*.*`;
+            const result = await AppApi.SaveFileSelectorDialog(
+                defaultName,
+                ext ? `.${ext}` : '',
+                filter
+            );
+            if (!result) {
+                return { success: false, error: 'cancelled' };
+            }
+            AppApi.WriteFileBytes(result, buffer);
+            return { success: true };
+        }
+
+        throw new Error('No file saving method available');
     } catch (e) {
         console.error('saveFileViaDialog error:', e);
         return { success: false, error: e.message };

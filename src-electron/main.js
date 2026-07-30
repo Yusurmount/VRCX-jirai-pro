@@ -656,7 +656,7 @@ function createTray() {
             }
         },
         {
-            label: 'Quit VRCX',
+            label: 'Quit VRCX-Pro',
             type: 'normal',
             click: function () {
                 appIsQuitting = true;

@@ -19,7 +19,7 @@
     <Title>VRCX-Pro</Title>
     <Description>VRCX Jirai Edition</Description>
     <PackageIcon>..\images\VRCX.png</PackageIcon>
-    <RepositoryUrl>https://github.com/Yusurmount/VRCX-jirai-pro</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Yusurmount/VRCX-Pro</RepositoryUrl>
     <ResourceLanguages>en</ResourceLanguages>
     <SatelliteResourceLanguages>en-US;en</SatelliteResourceLanguages>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>

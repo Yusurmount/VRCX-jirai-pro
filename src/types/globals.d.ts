@@ -44,8 +44,14 @@ declare global {
             openFileDialog: () => Promise<string>;
             openJsonFileDialog: () => Promise<string>;
             openDirectoryDialog: () => Promise<string>;
-            saveFileDialog: (defaultName: string, formatLabel?: string) => Promise<string>;
-            writeFile: (filePath: string, buffer: ArrayBuffer) => Promise<boolean>;
+            saveFileDialog: (
+                defaultName: string,
+                formatLabel?: string
+            ) => Promise<string>;
+            writeFile: (
+                filePath: string,
+                buffer: ArrayBuffer
+            ) => Promise<boolean>;
             readFile: (filePath: string) => Promise<string>;
             desktopNotification: (
                 displayName: string,
@@ -246,6 +252,14 @@ declare global {
             defaultExt?: string,
             defaultFilter?: string
         ): Promise<string>;
+        SaveFileSelectorDialog(
+            defaultPath?: string,
+            defaultExt?: string,
+            defaultFilter?: string
+        ): Promise<string>;
+        ReadFileText(filePath: string): string;
+        WriteFileBytes(filePath: string, data: ArrayBuffer): void;
+        WriteFileText(filePath: string, text: string): void;
 
         // Game Handler
         OnProcessStateChanged(monitoredProcess: any): Promise<void>;
@@ -425,3 +439,4 @@ declare global {
 }
 
 export {};
+

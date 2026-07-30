@@ -392,7 +392,7 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         if (advancedSettingsStore.screenshotHelper) {
             const location = parseLocation(locationStore.lastLocation.location);
             const metadata = {
-                application: 'VRCX',
+                application: 'VRCX-Pro',
                 version: 1,
                 author: {
                     id: userStore.currentUser.id,

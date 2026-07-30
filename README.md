@@ -4,7 +4,7 @@
 
 </div>
 
-这是 [VRCX-jirai](https://github.com/Yusurmount/VRCX-jirai-pro) 的扩展版本。
+这是 [VRCX-Pro](https://github.com/Yusurmount/VRCX-Pro) 的扩展版本。
 
 > 叠甲：`功能仅供娱乐，勿用非法用途!`
 > 所有的功能都是基于 VRCX 的原版数据库和原版接口API，没有实现任何有关“不该获取到的信息”。
@@ -25,7 +25,6 @@
 用处举例：需要重装系统时可导出数据防止数据丢失 / 在不同设备上使用VRCX时产生的数据可能不同，可手动同步
 
 > 其他新功能请查看更新日志
-
 
 ## 开发者文档
 
@@ -48,7 +47,7 @@ MIT License
 
 Copyright (c) 2019-2026 pypy and individual contributors. (VRCX)
 Copyright (c) FuLuTang. (VRCX-jirai)
-Copyright (c) Yusurmount. (VRCX-jirai-pro)
+Copyright (c) Yusurmount. (VRCX-Pro)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -69,4 +68,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-> VRCX-jirai-pro by Yusurmount is not endorsed by VRChat and does not reflect the views or opinions of VRChat or anyone officially involved in producing or managing VRChat properties. VRChat and all associated properties are trademarks or registered trademarks of VRChat Inc. VRChat © VRChat Inc.
+> VRCX-Pro by Yusurmount is not endorsed by VRChat and does not reflect the views or opinions of VRChat or anyone officially involved in producing or managing VRChat properties. VRChat and all associated properties are trademarks or registered trademarks of VRChat Inc. VRChat © VRChat Inc.

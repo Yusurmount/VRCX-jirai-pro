@@ -5,9 +5,9 @@ $ErrorActionPreference = "Stop"
 # Import-Module (Join-Path $installPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
 # Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation
 
-$Date = Get-Date -format yyyyMMdd
-$ZipName = "VRCX_" + $Date + ".zip"
-$SetupName = "VRCX_" + $Date + "_Setup.exe"
+$version = (Get-Content -Path "Version" -Raw).Trim()
+$ZipName = "VRCX-Pro_Portable_$version.zip"
+$SetupName = "VRCX-Pro_Setup_$version.exe"
 
 Write-Host "Building .Net..." -ForegroundColor Green
 dotnet build Dotnet\VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -p:Platform=x64 -p:RestorePackagesConfig=true -t:"Restore;Clean;Build" -m --self-contained
@@ -28,7 +28,6 @@ Move-Item $ZipName ..\..\$ZipName -Force
 cd ..\..\
 
 Write-Host "Creating Installer..." -ForegroundColor Green
-$version = (Get-Content -Path "Version" -Raw).Trim()
 cd "Installer"
 Out-File -FilePath "version_define.nsh" -Encoding UTF8 -InputObject "!define PRODUCT_VERSION_FROM_FILE `"$version.0`""
 $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
