@@ -107,7 +107,9 @@
                     size="sm"
                     variant="outline"
                     @click="
-                        openExternalLink('https://github.com/FuLuTang/VRCX-jirai/wiki/Launch-parameters-&-VRCX.json')
+                        openExternalLink(
+                            'https://github.com/Yusurmount/VRCX-jirai-pro/wiki/Launch-parameters-&-VRCX.json'
+                        )
                     "
                     >{{ t('view.settings.advanced.advanced.launch_commands.docs') }}</Button
                 >

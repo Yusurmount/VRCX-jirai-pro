@@ -2,11 +2,11 @@
 
 # <img src="./images/VRCX.png" width="64" height="64"> VRCX - 地雷Edition
 
-[![GitHub Workflow Status](https://github.com/FuLuTang/VRCX-jirai/actions/workflows/github_actions.yml/badge.svg)](https://github.com/FuLuTang/VRCX-jirai/actions/workflows/github_actions.yml)
+[![GitHub Workflow Status](https://github.com/Yusurmount/VRCX-jirai-pro/actions/workflows/github_actions.yml/badge.svg)](https://github.com/Yusurmount/VRCX-jirai-pro/actions/workflows/github_actions.yml)
 
 </div>
 
-这是 [VRCX](https://github.com/vrcx-team/VRCX) 与 [VRCX-jirai](https://github.com/FuLuTang/VRCX-jirai) 两个项目的魔改分支，旨在优化体验，修复漏洞，补全功能。
+这是 [VRCX](https://github.com/vrcx-team/VRCX) 与 [VRCX-jirai](https://github.com/Yusurmount/VRCX-jirai-pro) 两个项目的魔改分支，旨在优化体验，修复漏洞，补全功能。
 
 > 叠甲：`功能仅供娱乐，勿用非法用途!`<br>本分支仅添加了更多的“数据展示”的功能。
 > 所有的功能都是基于 VRCX 的原版数据库和原版接口API，没有实现任何有关“不该获取到的信息”。
@@ -36,6 +36,7 @@ MIT License
 
 Copyright (c) 2019-2026 pypy and individual contributors. (VRCX)
 Copyright (c) FuLuTang. (VRCX-jirai)
+Copyright (c) Yusurmount. (VRCX-jirai-pro)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,5 +57,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-> VRCX-jirai-Pro Edition is not endorsed by VRChat and does not reflect the views or opinions of VRChat or anyone officially involved in producing or managing VRChat properties. VRChat and all associated properties are trademarks or registered trademarks of VRChat Inc. VRChat © VRChat Inc.
+> VRCX-jirai-pro by Yusurmount is not endorsed by VRChat and does not reflect the views or opinions of VRChat or anyone officially involved in producing or managing VRChat properties. VRChat and all associated properties are trademarks or registered trademarks of VRChat Inc. VRChat © VRChat Inc.
 

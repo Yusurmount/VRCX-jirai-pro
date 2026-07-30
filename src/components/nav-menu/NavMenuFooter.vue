@@ -1,34 +1,6 @@
 <template>
     <SidebarFooter class="px-2 py-3">
         <SidebarMenu>
-            <SidebarMenuItem>
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <SidebarMenuButton :tooltip="t('nav_tooltip.help_support')">
-                            <i class="ri-question-line inline-flex size-6 items-center justify-center text-lg" />
-                            <span v-show="!isCollapsed">{{ t('nav_tooltip.help_support') }}</span>
-                        </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start" class="w-56">
-                        <DropdownMenuItem @click="emit('show-changelog')">
-                            <span>{{ t('nav_menu.changelog') }}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuLabel>{{ t('nav_menu.resources') }}</DropdownMenuLabel>
-                        <DropdownMenuItem @click="emit('support-link', 'wiki')">
-                            <span>{{ t('nav_menu.wiki') }}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuLabel>{{ t('nav_menu.get_help') }}</DropdownMenuLabel>
-                        <DropdownMenuItem @click="emit('support-link', 'github')">
-                            <span>{{ t('nav_menu.github') }}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem @click="emit('support-link', 'discord')">
-                            <span>{{ t('nav_menu.discord') }}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </SidebarMenuItem>
 
             <SidebarMenuItem>
                 <DropdownMenu>
@@ -246,8 +218,6 @@
     });
 
     const emit = defineEmits([
-        'show-changelog',
-        'support-link',
         'toggle-theme',
         'show-vrcx-update-dialog',
         'settings-click',

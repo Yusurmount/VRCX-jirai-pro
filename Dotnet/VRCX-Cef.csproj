@@ -19,14 +19,14 @@
     <Title>VRCX-Jirai</Title>
     <Description>VRCX Jirai Edition</Description>
     <PackageIcon>..\images\VRCX.png</PackageIcon>
-    <RepositoryUrl>https://github.com/FuLuTang/VRCX-jirai</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Yusurmount/VRCX-jirai-pro</RepositoryUrl>
     <ResourceLanguages>en</ResourceLanguages>
     <SatelliteResourceLanguages>en-US;en</SatelliteResourceLanguages>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>VRCX-Jirai</AssemblyName>
     <RootNamespace>VRCX</RootNamespace>
     <PackageId>VRCX-Jirai</PackageId>
-    <Company>FuLuTang</Company>
+    <Company>Yusurmount</Company>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <!-- Fix fail fast exception -->

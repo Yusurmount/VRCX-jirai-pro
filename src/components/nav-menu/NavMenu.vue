@@ -133,8 +133,6 @@
             :is-applying-theme-color="isApplyingThemeColor"
             :theme-display-name="themeDisplayName"
             :theme-color-display-name="themeColorDisplayName"
-            @show-changelog="showChangeLogDialog"
-            @support-link="handleSupportLink"
             @toggle-theme="handleThemeToggle"
             @show-vrcx-update-dialog="showVRCXUpdateDialog"
             @settings-click="handleSettingsClick"
@@ -143,8 +141,7 @@
             @table-density-select="handleTableDensitySelect"
             @open-custom-nav="handleOpenCustomNavDialog"
             @logout-click="handleLogoutClick"
-            @toggle-nav-collapse="toggleNavCollapse"
-            @open-github="openGithub" />
+            @toggle-nav-collapse="toggleNavCollapse" />
     </Sidebar>
 
     <CustomNavDialog
@@ -199,7 +196,7 @@
         useVRCXUpdaterStore
     } from '../../stores';
     import { isEntryNotified as checkEntryNotified } from './navMenuUtils';
-    import { DASHBOARD_NAV_KEY_PREFIX, links } from '../../shared/constants';
+    import { DASHBOARD_NAV_KEY_PREFIX } from '../../shared/constants';
     import { openExternalLink } from '../../shared/utils';
 
     import NavMenuFolderItem from './NavMenuFolderItem.vue';
@@ -320,17 +317,6 @@
 
     const handleLogoutClick = () => {
         logout();
-    };
-
-    const openGithub = () => {
-        openExternalLink('https://github.com/FuLuTang/VRCX-jirai');
-    };
-
-    const handleSupportLink = (id) => {
-        const target = links[id];
-        if (target) {
-            openExternalLink(target);
-        }
     };
 
     const handleOpenCustomNavDialog = () => {

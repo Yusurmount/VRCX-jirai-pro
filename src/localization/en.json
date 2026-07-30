@@ -104,7 +104,14 @@
             "confirm": "Confirm",
             "cancel": "Cancel",
             "restore_default": "Restore Default",
-            "restore_default_confirm": "Restore navigation to its default order?"
+            "restore_default_confirm": "Restore navigation to its default order?",
+            "add_folder": "Add Folder",
+            "folder_available": "Available",
+            "folder_selected": "Selected",
+            "folder_selected_empty": "No folders selected",
+            "invalid_folder": "Invalid Folder",
+            "remove_from_folder": "Remove from Folder",
+            "save": "Save"
         }
     },
     "dashboard": {
@@ -762,7 +769,9 @@
                 "screenshot": "Screenshot Manager",
                 "screenshot_description": "View and manage screenshot metadata",
                 "gallery": "Image Manager",
-                "gallery_description": "Manage images and inventory"
+                "gallery_description": "Manage images and inventory",
+                "inventory": "Inventory",
+                "inventory_description": "Manage item inventory"
             },
             "shortcuts": {
                 "header": "Shortcuts",
@@ -946,7 +955,8 @@
                     "auto_change_status_groups": "Only count friends from",
                     "auto_change_status_groups_placeholder": "Choose Groups",
                     "auto_accept_invite_groups": "Only accept from",
-                    "auto_accept_invite_groups_placeholder": "Choose Groups"
+                    "auto_accept_invite_groups_placeholder": "Choose Groups",
+                    "auto_invite_request_accept_off": "Off"
                 },
                 "legal_notice": {
                     "header": "Legal Notice",
@@ -1021,7 +1031,9 @@
                     "table_density_comfortable": "Comfortable",
                     "table_density_compact": "Compact",
                     "table_entries_settings": "Table Entries Settings",
-                    "table_entries_settings_description": "Control how many items are loaded for lists and searches."
+                    "table_entries_settings_description": "Control how many items are loaded for lists and searches.",
+                    "toggle_pointer_on_hover": "Toggle Pointer on Hover",
+                    "toggle_pointer_on_hover_description": "Show a pointer cursor when hovering over interactive elements."
                 },
                 "display": {
                     "header": "Display"
@@ -1060,7 +1072,14 @@
                         "last_seen": "Last Seen",
                         "time_in_instance": "Time in Instance",
                         "placeholder": "Sort Order"
-                    }
+                    },
+                    "group_by_instance": "Group by Instance",
+                    "group_by_instance_tooltip": "Group friends by the instance they are in",
+                    "header": "Friends List",
+                    "hide_friends_in_same_instance": "Hide Friends in Same Instance",
+                    "hide_friends_in_same_instance_tooltip": "Hide friends who are in the same instance as you",
+                    "split_favorite_friends": "Split Favorite Friends",
+                    "split_favorite_friends_tooltip": "Show favorite friends in a separate section"
                 },
                 "user_dialog": {
                     "header": "User Dialog",
@@ -1521,7 +1540,9 @@
                 "edit_note_memo": "Edit Note and Memo",
                 "reset_home": "Reset Home",
                 "track_stranger": "Track This User",
-                "untrack_stranger": "Stop Tracking This User"
+                "untrack_stranger": "Stop Tracking This User",
+                "favorite_tooltip": "Add to Favorites",
+                "unfavorite_tooltip": "Remove from Favorites"
             },
             "info": {
                 "header": "Info",
@@ -1578,7 +1599,8 @@
                 "show_mutual_friends": "Show Mutual Friends",
                 "show_discord_connections": "Show Discord Connections",
                 "instance_minimum_avatar_performance": "Minimum Avatar Performance",
-                "bio_diff_toggle": "Toggle bio diff"
+                "bio_diff_toggle": "Toggle bio diff",
+                "instance_closed": "Instance Closed"
             },
             "groups": {
                 "header": "Groups",

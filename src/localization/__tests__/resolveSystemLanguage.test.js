@@ -37,32 +37,12 @@ describe('resolveSystemLanguage', () => {
     });
 
     describe('prefix match', () => {
-        test('ja-JP matches ja', () => {
-            expect(resolveSystemLanguage('ja-JP', languageCodes)).toBe('ja');
-        });
-
-        test('ko-KR matches ko', () => {
-            expect(resolveSystemLanguage('ko-KR', languageCodes)).toBe('ko');
-        });
-
-        test('fr-FR matches fr', () => {
-            expect(resolveSystemLanguage('fr-FR', languageCodes)).toBe('fr');
-        });
-
         test('en-US matches en', () => {
             expect(resolveSystemLanguage('en-US', languageCodes)).toBe('en');
         });
 
-        test('es-MX matches es', () => {
-            expect(resolveSystemLanguage('es-MX', languageCodes)).toBe('es');
-        });
-
-        test('pt-BR matches pt', () => {
-            expect(resolveSystemLanguage('pt-BR', languageCodes)).toBe('pt');
-        });
-
-        test('ru-RU matches ru', () => {
-            expect(resolveSystemLanguage('ru-RU', languageCodes)).toBe('ru');
+        test('unsupported prefix returns null', () => {
+            expect(resolveSystemLanguage('ja-JP', languageCodes)).toBeNull();
         });
     });
 

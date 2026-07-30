@@ -1,8 +1,8 @@
 const links = {
-    wiki: 'https://github.com/FuLuTang/VRCX-jirai/wiki',
+    wiki: 'https://github.com/Yusurmount/VRCX-jirai-pro/wiki',
     troubleshootingAuthUserConnectionIssues:
-        'https://github.com/FuLuTang/VRCX-jirai/wiki/Troubleshooting#401-authuser--connection-issues',
-    github: 'https://github.com/FuLuTang/VRCX-jirai',
+        'https://github.com/Yusurmount/VRCX-jirai-pro/wiki/Troubleshooting#401-authuser--connection-issues',
+    github: 'https://github.com/Yusurmount/VRCX-jirai-pro',
     discord: 'https://vrcx.app/discord'
 };
 

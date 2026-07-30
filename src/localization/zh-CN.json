@@ -265,7 +265,8 @@
             "language_detect": {
                 "title": "检测到语言",
                 "description": "您的系统语言似乎是 {language}。是否切换到该语言？"
-            }
+            },
+            "loginSelected": "已选择的登录方式"
         },
         "feed": {
             "favorites_only_tooltip": "仅显示星标好友",
@@ -1597,7 +1598,9 @@
                 "open_previous_instance": "打开之前加入的房间的列表",
                 "show_mutual_friends": "是否允许查看共同好友",
                 "show_discord_connections": "是否允许查看绑定的 Discord 账号信息",
-                "bio_diff_toggle": "切换简介对比"
+                "bio_diff_toggle": "切换简介对比",
+                "instance_closed_at": "关闭时间",
+                "instance_minimum_avatar_performance": "最低角色性能等级"
             },
             "groups": {
                 "header": "群组",
@@ -1733,7 +1736,7 @@
                 "private": "私人",
                 "avatar_scaling_disabled": "已禁用模型缩放功能",
                 "focus_view_disabled": "已禁用焦点视图功能",
-                "future_proofing": "Future Proofing",
+                "future_proofing": "未来兼容",
                 "labs": "社区实验室",
                 "cache": "缓存",
                 "content_horror": "恐怖",
@@ -1813,13 +1816,21 @@
                 "private": "私人",
                 "fallback": "备用",
                 "impostor": "模型替身",
-                "future_proofing": "Future Proofing",
+                "future_proofing": "未来兼容",
                 "cache": "缓存",
                 "content_horror": "恐怖",
                 "content_gore": "血腥",
                 "content_violence": "暴力",
                 "content_adult": "成人内容",
-                "content_sex": "性暗示"
+                "content_sex": "性暗示",
+                "performanceRating": {
+                    "Excellent": "优秀",
+                    "Good": "良好",
+                    "Medium": "中等",
+                    "None": "无",
+                    "Poor": "较差",
+                    "VeryPoor": "很差"
+                }
             },
             "labels": {
                 "public": "（公开）",
@@ -2059,7 +2070,8 @@
             "legacy": "传统",
             "roles": "身份组",
             "open_ingame": "在 VRChat 中打开",
-            "display_name": "自定义房间名称 (需要 VRC+)"
+            "display_name": "自定义房间名称 (需要 VRC+)",
+            "minimum_avatar_performance": "最低角色性能等级"
         },
         "launch": {
             "header": "启动",
@@ -3359,7 +3371,10 @@
         "clocks_none": "无",
         "timezone": "时区",
         "now_playing": "正在游玩",
-        "info_sync": "同步"
+        "info_sync": "同步",
+        "view_merged": "合并视图",
+        "view_mode": "视图模式",
+        "view_primary": "主账号"
     }
 }
 
