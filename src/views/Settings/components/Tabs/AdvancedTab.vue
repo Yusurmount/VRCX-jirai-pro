@@ -364,6 +364,12 @@
                 </DialogHeader>
                 <div class="flex flex-col gap-4 py-2">
                     <template v-if="exportPhase === 'confirm'">
+                        <Alert variant="warning" class="mb-2">
+                            <TriangleAlert class="h-4 w-4" />
+                            <AlertDescription>
+                                {{ t('view.settings.advanced.advanced.db_export.confirm_not_encrypted') }}
+                            </AlertDescription>
+                        </Alert>
                         <p class="text-sm text-muted-foreground">
                             {{ t('view.settings.advanced.advanced.db_export.confirm_message') }}
                         </p>
@@ -435,20 +441,176 @@
                     if (!open) isImportDialogVisible = false;
                 }
             ">
-            <DialogContent class="x-dialog sm:max-w-md">
+            <DialogContent class="x-dialog sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>{{ t('view.settings.advanced.advanced.db_import.confirm_title') }}</DialogTitle>
+                    <DialogTitle>
+                        <template v-if="importPhase === 'strategy'">
+                            {{ t('view.settings.advanced.advanced.db_import.strategy_title') }}
+                        </template>
+                        <template v-else-if="importPhase === 'confirm'">
+                            {{ t('view.settings.advanced.advanced.db_import.confirm_title') }}
+                        </template>
+                        <template v-else-if="importPhase === 'reading' || importPhase === 'importing'">
+                            {{ t('view.settings.advanced.advanced.db_import.progress_title') }}
+                        </template>
+                        <template v-else-if="importPhase === 'report'">
+                            {{ t('view.settings.advanced.advanced.db_import.report_title') }}
+                        </template>
+                        <template v-else>
+                            {{ t('view.settings.advanced.advanced.db_import.confirm_title') }}
+                        </template>
+                    </DialogTitle>
                 </DialogHeader>
+
                 <div class="flex flex-col gap-4 py-2">
-                    <template v-if="importPhase === 'confirm'">
+                    <!-- Strategy Selection Phase -->
+                    <template v-if="importPhase === 'strategy'">
                         <p class="text-sm text-muted-foreground">
-                            {{ t('view.settings.advanced.advanced.db_import.confirm_message') }}
+                            {{ t('view.settings.advanced.advanced.db_import.strategy_description') }}
                         </p>
+
+                        <div class="space-y-4">
+                            <!-- Existing data strategy -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">
+                                    {{ t('view.settings.advanced.advanced.db_import.strategy_conflict_label') }}
+                                </Label>
+                                <RadioGroup v-model="conflictStrategy" class="grid gap-2">
+                                    <div
+                                        class="flex items-start gap-3 rounded-md border p-3 cursor-pointer"
+                                        :class="conflictStrategy === 'overwrite' ? 'border-primary' : ''">
+                                        <RadioGroupItem id="conflict-overwrite" value="overwrite" />
+                                        <div class="flex flex-col gap-1">
+                                            <Label for="conflict-overwrite" class="text-sm font-medium cursor-pointer">
+                                                {{ t('view.settings.advanced.advanced.db_import.strategy_overwrite') }}
+                                            </Label>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{
+                                                    t(
+                                                        'view.settings.advanced.advanced.db_import.strategy_overwrite_desc'
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-start gap-3 rounded-md border p-3 cursor-pointer"
+                                        :class="conflictStrategy === 'skip' ? 'border-primary' : ''">
+                                        <RadioGroupItem id="conflict-skip" value="skip" />
+                                        <div class="flex flex-col gap-1">
+                                            <Label for="conflict-skip" class="text-sm font-medium cursor-pointer">
+                                                {{
+                                                    t(
+                                                        'view.settings.advanced.advanced.db_import.strategy_skip_existing'
+                                                    )
+                                                }}
+                                            </Label>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{
+                                                    t(
+                                                        'view.settings.advanced.advanced.db_import.strategy_skip_existing_desc'
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+
+                            <!-- New data strategy -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-medium">
+                                    {{ t('view.settings.advanced.advanced.db_import.strategy_new_label') }}
+                                </Label>
+                                <RadioGroup v-model="newDataStrategy" class="grid gap-2">
+                                    <div
+                                        class="flex items-start gap-3 rounded-md border p-3 cursor-pointer"
+                                        :class="newDataStrategy === 'add' ? 'border-primary' : ''">
+                                        <RadioGroupItem id="new-add" value="add" />
+                                        <div class="flex flex-col gap-1">
+                                            <Label for="new-add" class="text-sm font-medium cursor-pointer">
+                                                {{ t('view.settings.advanced.advanced.db_import.strategy_add') }}
+                                            </Label>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{ t('view.settings.advanced.advanced.db_import.strategy_add_desc') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-start gap-3 rounded-md border p-3 cursor-pointer"
+                                        :class="newDataStrategy === 'skip' ? 'border-primary' : ''">
+                                        <RadioGroupItem id="new-skip" value="skip" />
+                                        <div class="flex flex-col gap-1">
+                                            <Label for="new-skip" class="text-sm font-medium cursor-pointer">
+                                                {{ t('view.settings.advanced.advanced.db_import.strategy_skip_new') }}
+                                            </Label>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{
+                                                    t(
+                                                        'view.settings.advanced.advanced.db_import.strategy_skip_new_desc'
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        </div>
                     </template>
+
+                    <!-- File Reading Phase -->
                     <template v-else-if="importPhase === 'reading'">
                         <p class="text-sm">{{ t('view.settings.advanced.advanced.db_import.reading') }}</p>
                         <Spinner class="h-5 w-5 mx-auto" />
                     </template>
+
+                    <!-- Confirmation Phase -->
+                    <template v-else-if="importPhase === 'confirm'">
+                        <Alert variant="default" class="mb-2 border-blue-500/50">
+                            <AlertDescription class="text-sm">
+                                {{ t('view.settings.advanced.advanced.db_import.confirm_message') }}
+                            </AlertDescription>
+                        </Alert>
+
+                        <div class="rounded-md border p-3 space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">{{
+                                    t('view.settings.advanced.advanced.db_import.summary_tables')
+                                }}</span>
+                                <span class="font-medium">{{ importFileSummary?.tableCount }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">{{
+                                    t('view.settings.advanced.advanced.db_import.summary_records')
+                                }}</span>
+                                <span class="font-medium">{{ importFileSummary?.totalRecords }}</span>
+                            </div>
+                            <div class="border-t pt-2 mt-2">
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">{{
+                                        t('view.settings.advanced.advanced.db_import.strategy_conflict_label')
+                                    }}</span>
+                                    <span class="font-medium">{{
+                                        conflictStrategy === 'overwrite'
+                                            ? t('view.settings.advanced.advanced.db_import.strategy_overwrite')
+                                            : t('view.settings.advanced.advanced.db_import.strategy_skip_existing')
+                                    }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">{{
+                                        t('view.settings.advanced.advanced.db_import.strategy_new_label')
+                                    }}</span>
+                                    <span class="font-medium">{{
+                                        newDataStrategy === 'add'
+                                            ? t('view.settings.advanced.advanced.db_import.strategy_add')
+                                            : t('view.settings.advanced.advanced.db_import.strategy_skip_new')
+                                    }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Importing Phase -->
                     <template v-else-if="importPhase === 'importing'">
                         <p class="text-sm">
                             {{
@@ -463,18 +625,92 @@
                                 :style="{ width: importProgressPercent + '%' }"></div>
                         </div>
                     </template>
-                    <template v-else-if="importPhase === 'done'">
+
+                    <!-- Report Phase -->
+                    <template v-else-if="importPhase === 'report'">
                         <Alert variant="default" class="mb-2 border-green-500/50">
                             <AlertDescription>
                                 {{
                                     t('view.settings.advanced.advanced.db_import.success', {
-                                        importedCount: importResult.importedCount,
-                                        tablesProcessed: importResult.tablesProcessed
+                                        importedCount: importReport.overwritten + importReport.added,
+                                        tablesProcessed: importReport.tables.length
                                     })
                                 }}
                             </AlertDescription>
                         </Alert>
+
+                        <div class="rounded-md border p-3 space-y-2 text-sm">
+                            <div class="flex justify-between text-green-600 dark:text-green-400">
+                                <span>{{ t('view.settings.advanced.advanced.db_import.report_overwritten') }}</span>
+                                <span class="font-medium">{{ importReport.overwritten }}</span>
+                            </div>
+                            <div class="flex justify-between text-blue-600 dark:text-blue-400">
+                                <span>{{ t('view.settings.advanced.advanced.db_import.report_added') }}</span>
+                                <span class="font-medium">{{ importReport.added }}</span>
+                            </div>
+                            <div
+                                v-if="importReport.skippedExisting > 0"
+                                class="flex justify-between text-muted-foreground">
+                                <span>{{
+                                    t('view.settings.advanced.advanced.db_import.report_skipped_existing')
+                                }}</span>
+                                <span class="font-medium">{{ importReport.skippedExisting }}</span>
+                            </div>
+                            <div v-if="importReport.skippedNew > 0" class="flex justify-between text-muted-foreground">
+                                <span>{{ t('view.settings.advanced.advanced.db_import.report_skipped_new') }}</span>
+                                <span class="font-medium">{{ importReport.skippedNew }}</span>
+                            </div>
+                            <div class="border-t pt-2 flex justify-between font-medium">
+                                <span>{{ t('view.settings.advanced.advanced.db_import.report_total') }}</span>
+                                <span>{{ importReport.totalProcessed }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Per-table breakdown -->
+                        <details class="text-sm">
+                            <summary class="cursor-pointer text-muted-foreground hover:text-foreground">
+                                {{ t('view.settings.advanced.advanced.db_import.report_details') }}
+                            </summary>
+                            <div class="mt-2 max-h-48 overflow-y-auto space-y-1">
+                                <div
+                                    v-for="t in importReport.tables"
+                                    :key="t.tableName"
+                                    class="flex justify-between text-xs py-1 px-2 rounded hover:bg-muted">
+                                    <span class="truncate max-w-[180px]" :title="t.tableName">{{ t.tableName }}</span>
+                                    <span class="shrink-0">
+                                        <span
+                                            v-if="t.overwritten > 0"
+                                            class="text-green-600 dark:text-green-400 ml-1"
+                                            :title="t('view.settings.advanced.advanced.db_import.report_overwritten')"
+                                            >+{{ t.overwritten }}O</span
+                                        >
+                                        <span
+                                            v-if="t.added > 0"
+                                            class="text-blue-600 dark:text-blue-400 ml-1"
+                                            :title="t('view.settings.advanced.advanced.db_import.report_added')"
+                                            >+{{ t.added }}A</span
+                                        >
+                                        <span
+                                            v-if="t.skippedExisting > 0"
+                                            class="text-muted-foreground ml-1"
+                                            :title="
+                                                t('view.settings.advanced.advanced.db_import.report_skipped_existing')
+                                            "
+                                            >-{{ t.skippedExisting }}SE</span
+                                        >
+                                        <span
+                                            v-if="t.skippedNew > 0"
+                                            class="text-muted-foreground ml-1"
+                                            :title="t('view.settings.advanced.advanced.db_import.report_skipped_new')"
+                                            >-{{ t.skippedNew }}SN</span
+                                        >
+                                    </span>
+                                </div>
+                            </div>
+                        </details>
                     </template>
+
+                    <!-- Error Phase -->
                     <template v-else-if="importPhase === 'error'">
                         <Alert variant="destructive" class="mb-2">
                             <AlertDescription>
@@ -483,27 +719,56 @@
                         </Alert>
                     </template>
                 </div>
+
                 <DialogFooter>
-                    <template v-if="importPhase === 'confirm'">
+                    <!-- Strategy: show Select file + Cancel -->
+                    <template v-if="importPhase === 'strategy'">
                         <Button variant="outline" size="sm" @click="isImportDialogVisible = false">
                             {{ t('confirm.cancel_button') }}
+                        </Button>
+                        <Button size="sm" @click="handleImportFileSelect">
+                            <Upload class="h-4 w-4 mr-1" />
+                            {{ t('view.settings.advanced.advanced.db_import.select_file') }}
+                        </Button>
+                    </template>
+
+                    <!-- Reading: disabled -->
+                    <template v-else-if="importPhase === 'reading'">
+                        <Button variant="outline" size="sm" disabled>
+                            {{ t('view.settings.advanced.advanced.db_import.reading') }}
+                        </Button>
+                    </template>
+
+                    <!-- Confirm: back + start import -->
+                    <template v-else-if="importPhase === 'confirm'">
+                        <Button variant="outline" size="sm" @click="backToStrategy">
+                            {{ t('common.actions.back') }}
                         </Button>
                         <Button size="sm" @click="handleImport">
                             <Upload class="h-4 w-4 mr-1" />
                             {{ t('view.settings.advanced.advanced.db_import.button') }}
                         </Button>
                     </template>
-                    <template v-else-if="importPhase === 'reading' || importPhase === 'importing'">
+
+                    <!-- Importing: disabled -->
+                    <template v-else-if="importPhase === 'importing'">
                         <Button variant="outline" size="sm" disabled>
                             {{
-                                importPhase === 'reading'
-                                    ? t('view.settings.advanced.advanced.db_import.reading')
-                                    : t('view.settings.advanced.advanced.db_import.importing', {
-                                          progress: Math.round(importProgressPercent)
-                                      })
+                                t('view.settings.advanced.advanced.db_import.importing', {
+                                    progress: Math.round(importProgressPercent)
+                                })
                             }}
                         </Button>
                     </template>
+
+                    <!-- Report: close -->
+                    <template v-else-if="importPhase === 'report'">
+                        <Button variant="outline" size="sm" @click="isImportDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                    </template>
+
+                    <!-- Error: close -->
                     <template v-else>
                         <Button variant="outline" size="sm" @click="isImportDialogVisible = false">
                             {{ t('confirm.cancel_button') }}
@@ -569,6 +834,8 @@
     import { toast } from 'vue-sonner';
     import { Button } from '@/components/ui/button';
     import { Switch } from '@/components/ui/switch';
+    import { Label } from '@/components/ui/label';
+    import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
     import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
     import { Alert, AlertDescription } from '@/components/ui/alert';
     import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -596,7 +863,7 @@
     import { disableGameLogDialog } from '@/coordinators/gameLogCoordinator';
     import { clearVRCXCache } from '@/coordinators/vrcxCoordinator';
     import { openExternalLink } from '@/shared/utils';
-    import { exportDatabaseData, importDatabaseData } from '@/services/database/exportImport';
+    import { exportDatabaseData, readImportFile, executeImport } from '@/services/database/exportImport';
 
     import PhotonSettings from '../PhotonSettings.vue';
     import RegistryBackupDialog from '../../../Tools/dialogs/RegistryBackupDialog.vue';
@@ -679,10 +946,27 @@
     const exportError = ref('');
 
     const isImportDialogVisible = ref(false);
-    const importPhase = ref('confirm'); // 'confirm' | 'reading' | 'importing' | 'done' | 'error'
+    const importPhase = ref('confirm'); // 'strategy' | 'confirm' | 'reading' | 'importing' | 'report' | 'error'
     const importInProgress = ref(false);
     const importProgressPercent = ref(0);
-    const importResult = reactive({ importedCount: 0, tablesProcessed: 0 });
+
+    // Import strategy options
+    const conflictStrategy = ref('overwrite'); // 'overwrite' | 'skip'
+    const newDataStrategy = ref('add'); // 'add' | 'skip'
+
+    // Import file data (cached between phases)
+    const importDataCache = ref(null);
+    const importFileSummary = ref(null);
+
+    // Import result
+    const importReport = reactive({
+        overwritten: 0,
+        added: 0,
+        skippedExisting: 0,
+        skippedNew: 0,
+        totalProcessed: 0,
+        tables: []
+    });
     const importError = ref('');
 
     const userStore = useUserStore();
@@ -748,42 +1032,87 @@
     }
 
     /**
-     * Open import confirmation dialog
+     * Open import dialog - starts at strategy selection
      */
     function confirmImport() {
-        importPhase.value = 'confirm';
+        importPhase.value = 'strategy';
         importProgressPercent.value = 0;
-        importResult.importedCount = 0;
-        importResult.tablesProcessed = 0;
+        conflictStrategy.value = 'overwrite';
+        newDataStrategy.value = 'add';
+        importDataCache.value = null;
+        importFileSummary.value = null;
+        importReport.overwritten = 0;
+        importReport.added = 0;
+        importReport.skippedExisting = 0;
+        importReport.skippedNew = 0;
+        importReport.totalProcessed = 0;
+        importReport.tables = [];
         importError.value = '';
         isImportDialogVisible.value = true;
     }
 
     /**
-     * Execute database import
+     * Read and validate import file, then show confirmation
+     */
+    async function handleImportFileSelect() {
+        const userId = userStore.currentUser?.id || '';
+        importPhase.value = 'reading';
+
+        const result = await readImportFile(userId);
+
+        if (result.success) {
+            importDataCache.value = result.data;
+            importFileSummary.value = result.summary;
+            importPhase.value = 'confirm';
+        } else if (result.error === 'cancelled') {
+            isImportDialogVisible.value = false;
+            toast(t('view.settings.advanced.advanced.db_import.error_cancelled'));
+        } else {
+            importError.value = result.error;
+            importPhase.value = 'error';
+            toast.error(t('view.settings.advanced.advanced.db_import.error', { error: result.error }));
+        }
+    }
+
+    /**
+     * Go back to strategy selection
+     */
+    function backToStrategy() {
+        importPhase.value = 'strategy';
+    }
+
+    /**
+     * Execute database import with selected strategies
      */
     async function handleImport() {
-        const userId = userStore.currentUser?.id || '';
-        importInProgress.value = true;
+        if (!importDataCache.value) return;
 
-        const result = await importDatabaseData(userId, (state) => {
-            if (state.phase === 'reading') {
-                importPhase.value = 'reading';
-            } else if (state.phase === 'importing') {
-                importPhase.value = 'importing';
-                importProgressPercent.value = state.progress * 100;
+        importInProgress.value = true;
+        importPhase.value = 'importing';
+
+        const result = await executeImport(
+            importDataCache.value,
+            { conflictStrategy: conflictStrategy.value, newDataStrategy: newDataStrategy.value },
+            (state) => {
+                if (state.phase === 'importing') {
+                    importProgressPercent.value = state.progress * 100;
+                }
             }
-        });
+        );
 
         importInProgress.value = false;
 
         if (result.success) {
-            importPhase.value = 'done';
-            importResult.importedCount = result.importedCount;
-            importResult.tablesProcessed = result.tablesProcessed;
+            importPhase.value = 'report';
+            importReport.overwritten = result.report.overwritten;
+            importReport.added = result.report.added;
+            importReport.skippedExisting = result.report.skippedExisting;
+            importReport.skippedNew = result.report.skippedNew;
+            importReport.totalProcessed = result.report.totalProcessed;
+            importReport.tables = result.report.tables;
             toast.success(
                 t('view.settings.advanced.advanced.db_import.success', {
-                    importedCount: result.importedCount,
+                    importedCount: result.report.overwritten + result.report.added,
                     tablesProcessed: result.tablesProcessed
                 })
             );
