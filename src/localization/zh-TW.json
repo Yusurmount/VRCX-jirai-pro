@@ -20,8 +20,13 @@
             "refresh": "重新整理",
             "cancel": "取消",
             "copy": "複製",
-            "open_link": "開啟連結"
+            "open_link": "開啟連結",
+            "back": "返回"
         },
+        "duration": "持續時間",
+        "load_more": "載入更多",
+        "no_more": "没有更多記錄",
+        "current_session": "當前",
         "sort_by": "排序方式：",
         "time_units": {
             "y": "年",
@@ -99,7 +104,14 @@
             "confirm": "確認",
             "cancel": "取消",
             "restore_default": "恢復預設",
-            "restore_default_confirm": "要將導覽恢復為預設順序嗎？"
+            "restore_default_confirm": "要將導覽恢復為預設順序嗎？",
+            "add_folder": "新增資料夾",
+            "folder_available": "可用",
+            "folder_selected": "已選取",
+            "folder_selected_empty": "未選取任何資料夾",
+            "invalid_folder": "無效的資料夾",
+            "remove_from_folder": "從資料夾移除",
+            "save": "儲存"
         }
     },
     "dashboard": {
@@ -216,6 +228,20 @@
             "past_notifications": "最近 24 小時",
             "no_new_notifications": "最近 24 小時內沒有新通知",
             "no_unseen_notifications": "沒有未讀通知"
+        },
+        "search_recently_met": "最近遇見",
+        "search_recently_joined": "最近加入的世界",
+        "tracked_nonfriends": {
+            "tab_label": "已追蹤",
+            "empty": "尚未追蹤任何非好友。點擊 \"+\" 輸入用戶 ID 新增，或在任一用戶資料中使用 \"⋯\" 選單。",
+            "remove_tooltip": "取消追蹤",
+            "add_button": "新增 +",
+            "add_dialog_title": "追蹤用戶",
+            "add_dialog_hint": "手動輸入用戶 ID（usr_xxx...），或在 VRCX-jirai 中開啟任有用戶資料後使用 \"⋯\" → \"追蹤\" 選項。",
+            "add_input_placeholder": "usr_xxx...",
+            "add_verify_error": "無法取得用戶資料，請檢查 ID 後重試。",
+            "add_confirm_question": "此用戶為 \"{name}\" 嗎？",
+            "add_back": "返回"
         }
     },
     "view": {
@@ -239,7 +265,8 @@
             "language_detect": {
                 "title": "偵測到語言",
                 "description": "你的系統語言似乎是 {language}。是否切換到該語言？"
-            }
+            },
+            "loginSelected": "已選擇的登入方式"
         },
         "feed": {
             "favorites_only_tooltip": "僅篩選收藏",
@@ -279,6 +306,15 @@
                 "External": "外部",
                 "StringLoad": "字串載入",
                 "ImageLoad": "圖片載入"
+            },
+            "sessions": {
+                "switch_to_table": "表格檢視",
+                "switch_to_sessions": "會話檢視",
+                "date_range": "日期範圍",
+                "players_joined": "{count} 位玩家加入",
+                "players_left": "{count} 位玩家離開",
+                "play_count": "×{count}",
+                "no_data": "沒有遊戲記錄資料"
             }
         },
         "player_list": {
@@ -580,6 +616,40 @@
                     "user_opted_out": "此用戶已停用共同好友的分享功能。現有資料已保留。",
                     "refresh_error": "無法更新共同好友的資料",
                     "last_fetched": "最後一次取得"
+                },
+                "tracked_nonfriend": {
+                    "track_tooltip": "追蹤此非好友",
+                    "untrack_tooltip": "停止追蹤此非好友",
+                    "track_hint": "在圖表中右鍵點擊節點以選取",
+                    "added": "正在追蹤 {name}",
+                    "removed": "已停止追蹤 {name}",
+                    "show_tooltip": "在圖表中顯示已追蹤的非好友",
+                    "hide_tooltip": "在圖表中隱藏已追蹤的非好友"
+                },
+                "manual_relations": {
+                    "button_tooltip": "手動好友關係",
+                    "dialog_title": "手動好友關係",
+                    "tab_list": "關係",
+                    "tab_add": "新增",
+                    "tab_suggest": "建議",
+                    "list_empty": "尚未新增任何手動關係。",
+                    "user_a": "用戶 A",
+                    "user_b": "用戶 B",
+                    "user_placeholder": "選擇用戶...",
+                    "user_search": "搜尋好友...",
+                    "add_button": "新增關聯",
+                    "already_exists": "此關聯已存在。",
+                    "suggest_description": "根據共同好友資料，這些配對可能具有尚未記錄的好友關係。",
+                    "suggest_button": "執行分析",
+                    "suggest_score": "評分：{score}",
+                    "suggest_confirm": "新增",
+                    "suggest_dismiss": "略過",
+                    "suggest_none": "未找到建議。請先取得共同好友資料。"
+                },
+                "legend": {
+                    "mutual": "共同關係",
+                    "manual": "手動關係",
+                    "non_friend": "包含非好友"
                 }
             },
             "hot_worlds": {
@@ -597,14 +667,14 @@
                 },
                 "trend": {
                     "rising": "上升",
-                    "cooling": "Cooling"
+                    "cooling": "降溫"
                 },
                 "stats_line": {
                     "friends": "{count} 好友",
                     "visits": "{count} 次造訪"
                 },
                 "stats": {
-                    "top_friends": "top friends",
+                    "top_friends": "熱門好友",
                     "total_visits": "總造訪次數",
                     "rising": "上升",
                     "cooling": "冷卻"
@@ -614,6 +684,57 @@
                 },
                 "no_friend_data": "沒有好友造訪資料",
                 "friend_visits": "{count} 次造訪"
+            },
+            "playtime_trend": {
+                "header": "每日遊玩時間",
+                "online_hours": "小時",
+                "daily_avg": "日均",
+                "total": "總計",
+                "waiting": "正在建立遊玩時間資料，請稍後再查看。",
+                "no_data": "沒有遊玩時間資料"
+            },
+            "two_person_relationship": {
+                "header": "雙人關係",
+                "tips": {
+                    "description": "分析你的遊戲記錄資料庫，找出兩位好友同時出現在同一房間的記錄。即使你不在現場，系統也能從他們的個別加入/離開記錄重現他們共同的時光。"
+                },
+                "select_friend_a": "選擇好友 A",
+                "select_friend_b": "選擇好友 B",
+                "search_friend": "搜尋好友...",
+                "swap_friends": "交換好友",
+                "total_coexistence_time": "總共處時間",
+                "shared_instances": "共同房間",
+                "no_data": "未找到共同房間記錄",
+                "no_friend_selected": "選擇兩位好友以查看他們的共同房間",
+                "coexistence_time": "共處時間",
+                "instance_count": "共同房間數",
+                "meet_count": "{count} 次相遇",
+                "settings": "設定",
+                "show_self_presence": "顯示我的在場指示",
+                "self_present": "在場",
+                "self_not_present": "不在場",
+                "instance_creator": "建立者",
+                "max_player_count": "最高人數",
+                "initiator_leftPlayer": "左側跟隨",
+                "initiator_rightPlayer": "右側跟隨",
+                "initiator_mutual": "相互",
+                "initiator_unknown": "未知"
+            },
+            "relationship_timeline": {
+                "header": "關係時間軸",
+                "refresh": "重新整理",
+                "top_n_friends": "前 {n} 位好友",
+                "others": "其他",
+                "days_per_unit": "天/單位",
+                "tips": {
+                    "description": "以 100% 堆疊面積圖顯示你與好友之間的關係隨時間的演變。每個色帶代表一位好友在你總社交活動中的佔比。使用右下角的縮放滑桿調整時間粒度，並拖動底部橫條捲動時間。"
+                },
+                "settings": {
+                    "header": "設定",
+                    "top_friends": "熱門好友",
+                    "show_others": "顯示其他",
+                    "show_friends_only": "僅顯示好友"
+                }
             }
         },
         "tools": {
@@ -648,7 +769,9 @@
                 "screenshot": "截圖管理",
                 "screenshot_description": "管理截圖並檢視中繼資料",
                 "gallery": "圖片管理器",
-                "gallery_description": "管理圖片和庫存"
+                "gallery_description": "管理圖片和庫存",
+                "inventory": "庫存",
+                "inventory_description": "管理物品庫存"
             },
             "shortcuts": {
                 "header": "捷徑",
@@ -665,7 +788,19 @@
                 "vrchat_config_description": "開啟 VRChat config.json 設定",
                 "launch_options_description": "編輯 VRChat 啟動選項",
                 "registry_backup": "VRChat 登錄檔備份",
-                "registry_backup_description": "建立或還原 VRChat 登錄檔備份"
+                "registry_backup_description": "建立或還原 VRChat 登錄檔備份",
+                "info_completion": "個人檔案資訊同步與完成度",
+                "info_completion_again": "再次同步",
+                "info_completion_cancel": "取消",
+                "info_completion_close": "關閉",
+                "info_completion_description": "掃描並擷取所有好友和追蹤用戶的最新個人檔案，將新的或更新的簡介和狀態儲存到資料庫。",
+                "info_completion_done": "完成 — 從 {total} 個目標中儲存了 {updated} 個更新。",
+                "info_completion_hint": "準備掃描 {count} 個目標。",
+                "info_completion_progress": "正在掃描 {current} / {total}...",
+                "info_completion_start": "開始同步",
+                "info_completion_tooltip_done": "同步完成：已更新 {bio} 個簡介、{status} 個狀態（點擊重新同步）",
+                "info_completion_tooltip_idle": "個人檔案資訊同步（點擊開始）",
+                "info_completion_tooltip_running": "正在同步資訊 {done}/{total}（簡介 +{bio}，狀態 +{status}）"
             },
             "other": {
                 "header": "其他",
@@ -820,7 +955,8 @@
                     "auto_change_status_groups": "只計算來自以下群組的好友",
                     "auto_change_status_groups_placeholder": "選擇群組",
                     "auto_accept_invite_groups": "只接受來自以下群組",
-                    "auto_accept_invite_groups_placeholder": "選擇群組"
+                    "auto_accept_invite_groups_placeholder": "選擇群組",
+                    "auto_invite_request_accept_off": "關閉"
                 },
                 "legal_notice": {
                     "header": "法律聲明",
@@ -936,7 +1072,14 @@
                         "last_seen": "上次看見",
                         "time_in_instance": "在房間中的時間",
                         "placeholder": "排序順序"
-                    }
+                    },
+                    "group_by_instance": "依房間分組",
+                    "group_by_instance_tooltip": "依好友所在的房間進行分組",
+                    "header": "好友清單",
+                    "hide_friends_in_same_instance": "隱藏同在一個房間的好友",
+                    "hide_friends_in_same_instance_tooltip": "隱藏與你處於同一個房間的好友",
+                    "split_favorite_friends": "分開顯示收藏好友",
+                    "split_favorite_friends_tooltip": "在獨立區塊中顯示收藏好友"
                 },
                 "user_dialog": {
                     "header": "用戶資訊",
@@ -953,13 +1096,13 @@
                     "random_colors_from_user_id": "從用戶 ID 隨機挑選顏色",
                     "random_colors_from_user_id_description": "根據使用者 ID 為每位用戶指派固定顏色。",
                     "trust_levels": {
-                        "visitor": "Visitor",
-                        "new_user": "New User",
-                        "user": "User",
-                        "known_user": "Known User",
-                        "trusted_user": "Trusted User",
-                        "vrchat_team": "VRChat Team",
-                        "nuisance": "Nuisance"
+                        "visitor": "訪客",
+                        "new_user": "新用戶",
+                        "user": "用戶",
+                        "known_user": "已知用戶",
+                        "trusted_user": "可信用戶",
+                        "vrchat_team": "VRChat 團隊",
+                        "nuisance": "滋擾者"
                     }
                 },
                 "friend_log": {
@@ -1242,6 +1385,59 @@
                         "description": "開啟或設定儲存「拍立得」和「貼紙」等內容的資料夾",
                         "set_folder": "設定資料夾",
                         "reset_override": "重設"
+                    },
+                    "db_export": {
+                        "button": "匯出資料庫",
+                        "description": "將所有資料庫資料（用戶設定、歷史記錄、快取等）匯出為 JSON 檔案。",
+                        "confirm_title": "匯出資料庫資料",
+                        "confirm_message": "這將會匯出所有資料庫資料，包括動態歷史記錄、遊戲記錄、快取資料、收藏、備註及其他應用程式資料。敏感的驗證資訊將不會包含在內。是否繼續？",
+                        "confirm_not_encrypted": "匯出的檔案未經加密，包含 JSON 格式的可讀資料。請妥善處理，避免與不可信的第三方分享。",
+                        "exporting": "正在匯出資料庫...（{current}/{total} 個資料表）",
+                        "success": "資料庫已成功匯出至：\n{path}",
+                        "error": "匯出失敗：{error}",
+                        "error_cancelled": "匯出已取消。"
+                    },
+                    "db_import": {
+                        "button": "匯入資料庫",
+                        "description": "從先前匯出的 JSON 檔案匯入資料庫資料。僅接受來自同一帳號的檔案。",
+                        "strategy_title": "匯入策略",
+                        "strategy_description": "選擇匯入期間的記錄處理方式，然後選擇備份檔案。",
+                        "strategy_conflict_label": "對於現有記錄（衝突）",
+                        "strategy_overwrite": "覆寫",
+                        "strategy_overwrite_desc": "以備份檔案中的資料取代現有資料",
+                        "strategy_skip_existing": "略過",
+                        "strategy_skip_existing_desc": "保留現有資料不變",
+                        "strategy_new_label": "對於新記錄（無衝突）",
+                        "strategy_add": "新增",
+                        "strategy_add_desc": "從備份檔案插入新記錄",
+                        "strategy_skip_new": "略過",
+                        "strategy_skip_new_desc": "不要匯入新記錄",
+                        "select_file": "選擇備份檔案",
+                        "confirm_title": "確認匯入",
+                        "confirm_message": "檔案已驗證通過。請查看下方的匯入摘要和策略後再繼續。",
+                        "progress_title": "正在匯入資料庫",
+                        "summary_tables": "資料表",
+                        "summary_records": "總記錄數",
+                        "reading": "正在讀取匯入檔案...",
+                        "importing": "正在匯入資料...（{progress}%）",
+                        "success": "匯入成功完成。\n共在 {tablesProcessed} 個資料表中匯入 {importedCount} 筆記錄。",
+                        "report_title": "匯入結果",
+                        "report_overwritten": "已覆寫",
+                        "report_added": "已新增",
+                        "report_skipped_existing": "已略過（現有）",
+                        "report_skipped_new": "已略過（新）",
+                        "report_total": "總處理數",
+                        "report_details": "各資料表明細",
+                        "error": "匯入失敗：{error}",
+                        "error_cancelled": "匯入已取消。",
+                        "error_invalid_format": "檔案格式無效，請選擇有效的 VRCX 資料庫備份檔案。",
+                        "error_missing_metadata": "檔案缺少元資料，可能已損毀或不是有效的 VRCX 備份檔案。",
+                        "error_version_mismatch": "不支援的檔案版本，預期版本為 {version}。",
+                        "error_missing_tables": "檔案中不包含任何資料表資料。",
+                        "error_user_mismatch": "此備份檔案屬於不同的帳號，無法匯入。",
+                        "error_invalid_json": "無效的 JSON 檔案，請選擇有效的 VRCX 資料庫備份檔案。",
+                        "import_log_title": "匯入記錄",
+                        "import_log_empty": "沒有匯入記錄。"
                     }
                 },
                 "photon": {
@@ -1342,7 +1538,11 @@
                 "unfriend_success_msg": "已解除好友",
                 "logout": "登出",
                 "edit_note_memo": "編輯註釋與備忘錄",
-                "reset_home": "重設預設世界"
+                "reset_home": "重設預設世界",
+                "favorite_tooltip": "加入收藏",
+                "track_stranger": "追蹤此用戶",
+                "unfavorite_tooltip": "取消收藏",
+                "untrack_stranger": "停止追蹤此用戶"
             },
             "info": {
                 "header": "資訊",
@@ -1397,7 +1597,10 @@
                 "instance_age_gated": "年齡限制",
                 "open_previous_instance": "開啟過去的房間",
                 "show_mutual_friends": "顯示共同好友",
-                "show_discord_connections": "顯示 Discord 連結"
+                "show_discord_connections": "顯示 Discord 連結",
+                "bio_diff_toggle": "切換簡介差異",
+                "instance_closed_at": "關閉時間",
+                "instance_minimum_avatar_performance": "最低角色效能等級"
             },
             "groups": {
                 "header": "群組",
@@ -1503,12 +1706,28 @@
                 },
                 "preparing_data": "準備活動資料...",
                 "preparing_data_hint": "第一次載入時可能需要一些時間。",
-                "data_ready": "活動資料已準備就緒"
+                "data_ready": "活動資料已準備就緒",
+                "building_cache": "正在計算所有活動資料的擴展範圍...",
+                "period_180": "過去 6 個月",
+                "period_365": "過去 1 年",
+                "period_all": "全部時間"
             },
             "note_memo": {
                 "header": "編輯備註與備忘",
                 "cancel": "取消",
                 "confirm": "確認"
+            },
+            "status_distribution": {
+                "days_per_unit": "天/單位",
+                "header": "狀態分佈",
+                "loading": "正在載入狀態資料...",
+                "refresh_hint": "重新整理狀態分佈資料",
+                "status": {
+                    "active": "線上",
+                    "ask_me": "問我",
+                    "busy": "請勿打擾",
+                    "join_me": "加入我"
+                }
             }
         },
         "world": {
@@ -1603,7 +1822,15 @@
                 "content_gore": "血腥",
                 "content_violence": "暴力",
                 "content_adult": "成人",
-                "content_sex": "色情"
+                "content_sex": "色情",
+                "performanceRating": {
+                    "Excellent": "極佳",
+                    "Good": "良好",
+                    "Medium": "中等",
+                    "None": "無",
+                    "Poor": "較差",
+                    "VeryPoor": "很差"
+                }
             },
             "labels": {
                 "public": "（公開）",
@@ -1843,7 +2070,8 @@
             "legacy": "舊版",
             "roles": "身分",
             "open_ingame": "於遊戲中開啟",
-            "display_name": "顯示名稱（VRC+）"
+            "display_name": "顯示名稱（VRC+）",
+            "minimum_avatar_performance": "最低角色效能等級"
         },
         "launch": {
             "header": "啟動",
@@ -2046,7 +2274,10 @@
             "emoji": "表情符號",
             "redeem": "兌換",
             "create_animated_emoji": "動畫表情生成器",
-            "crop_image": "確認上傳"
+            "crop_image": "確認上傳",
+            "drop_to_add": "放開以新增",
+            "drop_to_upload": "拖放以上傳",
+            "drop_to_upload_hint": "將圖片拖放到此面板以上傳"
         },
         "image_crop": {
             "rotate_left": "向左旋轉",
@@ -2071,8 +2302,8 @@
             "world": "變更世界圖片",
             "description": "推薦圖片尺寸：1200 像素 x 900 像素 (4:3)",
             "upload": "上傳圖片",
-            "confirm": "Confirm Crop",
-            "cancel": "Cancel"
+            "confirm": "確認裁切",
+            "cancel": "取消"
         },
         "screenshot_metadata": {
             "header": "螢幕截圖詳細資料",
@@ -2395,7 +2626,19 @@
         "avatar_database_provider": {
             "header": "角色資料庫提供方",
             "add_provider": "新增提供方"
-        }
+        },
+        "close": "關閉",
+        "data_export": {
+            "cancel": "取消",
+            "description": "選擇格式並儲存到檔案",
+            "error": "匯出失敗：{error}",
+            "export": "匯出",
+            "format": "格式",
+            "no_data": "無資料可匯出",
+            "record_count": "{count} 筆記錄",
+            "success": "匯出成功"
+        },
+        "refresh": "重新整理"
     },
     "confirm": {
         "title": "確定",
@@ -3126,6 +3369,12 @@
         "clock": "時鐘",
         "clocks_label": "時鐘",
         "clocks_none": "無",
-        "timezone": "時區"
+        "timezone": "時區",
+        "info_sync": "同步",
+        "now_playing": "正在遊玩",
+        "view_merged": "合併檢視",
+        "view_mode": "檢視模式",
+        "view_primary": "主帳號"
     }
 }
+
