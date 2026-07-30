@@ -249,6 +249,17 @@
                     {{ t('view.settings.advanced.advanced.db_import.button') }}
                 </Button>
             </SettingsItem>
+
+            <SettingsItem :label="t('view.settings.advanced.advanced.db_reset.button')">
+                <Button
+                    size="sm"
+                    variant="destructive"
+                    :disabled="resetInProgress"
+                    @click="isResetDialogVisible = true">
+                    <Trash2 class="h-4 w-4 mr-1" />
+                    {{ t('view.settings.advanced.advanced.db_reset.button') }}
+                </Button>
+            </SettingsItem>
         </SettingsGroup>
 
         <SettingsGroup :title="t('view.settings.advanced.advanced.database_cleanup.header')">
@@ -780,6 +791,90 @@
             </DialogContent>
         </Dialog>
 
+        <!-- Reset Database Dialog -->
+        <Dialog
+            :open="isResetDialogVisible"
+            @update:open="
+                (open) => {
+                    if (!open) isResetDialogVisible = false;
+                }
+            ">
+            <DialogContent class="x-dialog sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>
+                        {{ t('view.settings.advanced.advanced.db_reset.warning_title') }}
+                    </DialogTitle>
+                </DialogHeader>
+
+                <template v-if="resetPhase === 'confirm'">
+                    <Alert variant="destructive" class="mb-3">
+                        <TriangleAlert />
+                        <AlertDescription>
+                            {{ t('view.settings.advanced.advanced.db_reset.warning_alert') }}
+                        </AlertDescription>
+                    </Alert>
+
+                    <div class="flex flex-col gap-2 text-sm text-muted-foreground mb-3">
+                        <p>{{ t('view.settings.advanced.advanced.db_reset.warning_description') }}</p>
+                        <p>{{ t('view.settings.advanced.advanced.db_reset.warning_items') }}</p>
+                        <p class="font-semibold text-destructive">
+                            {{ t('view.settings.advanced.advanced.db_reset.warning_confirmation') }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mb-3">
+                        <Label class="text-sm">
+                            {{
+                                t('view.settings.advanced.advanced.db_reset.input_label', {
+                                    required: confirmationRequiredText
+                                })
+                            }}
+                        </Label>
+                        <Input
+                            v-model="resetConfirmInput"
+                            :placeholder="t('view.settings.advanced.advanced.db_reset.input_placeholder')"
+                            :class="resetInputError ? 'border-destructive' : ''" />
+                        <p v-if="resetInputError" class="text-xs text-destructive">
+                            {{ t('view.settings.advanced.advanced.db_reset.input_error') }}
+                        </p>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" size="sm" @click="isResetDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                        <Button size="sm" variant="destructive" @click="handleResetDatabase">
+                            <Trash2 class="h-4 w-4 mr-1" />
+                            {{ t('view.settings.advanced.advanced.db_reset.button') }}
+                        </Button>
+                    </DialogFooter>
+                </template>
+
+                <template v-else-if="resetPhase === 'in_progress'">
+                    <div class="flex flex-col gap-4 py-4 items-center">
+                        <Spinner class="h-6 w-6" />
+                        <p class="text-sm text-muted-foreground">
+                            {{ t('view.settings.advanced.advanced.db_reset.in_progress') }}
+                        </p>
+                    </div>
+                </template>
+
+                <template v-else-if="resetPhase === 'error'">
+                    <Alert variant="destructive" class="mb-3">
+                        <TriangleAlert />
+                        <AlertDescription>
+                            {{ t('view.settings.advanced.advanced.db_reset.error', { error: resetError }) }}
+                        </AlertDescription>
+                    </Alert>
+                    <DialogFooter>
+                        <Button variant="outline" size="sm" @click="isResetDialogVisible = false">
+                            {{ t('confirm.cancel_button') }}
+                        </Button>
+                    </DialogFooter>
+                </template>
+            </DialogContent>
+        </Dialog>
+
         <SettingsGroup :title="t('view.settings.advanced_groups.diagnostics.header')">
             <SettingsItem :label="t('view.profile.game_info.online_users')">
                 <div class="flex items-center gap-2">
@@ -835,6 +930,7 @@
     import { computed, reactive, ref } from 'vue';
     import { toast } from 'vue-sonner';
     import { Button } from '@/components/ui/button';
+    import { Input } from '@/components/ui/input';
     import { Switch } from '@/components/ui/switch';
     import { Label } from '@/components/ui/label';
     import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -897,7 +993,8 @@
     const { cachedInstances } = useInstanceStore();
 
     const { photonLoggingEnabled } = storeToRefs(usePhotonStore());
-    const { branch } = storeToRefs(useVRCXUpdaterStore());
+    const vrcxUpdaterStore = useVRCXUpdaterStore();
+    const { branch } = storeToRefs(vrcxUpdaterStore);
 
     const { isDarkMode } = storeToRefs(useAppearanceSettingsStore());
 
@@ -970,6 +1067,21 @@
         tables: []
     });
     const importError = ref('');
+
+    // Database Reset state
+    const isResetDialogVisible = ref(false);
+    const resetPhase = ref('confirm'); // 'confirm' | 'in_progress' | 'error'
+    const resetInProgress = ref(false);
+    const resetConfirmInput = ref('');
+    const resetInputError = ref(false);
+    const resetError = ref('');
+    const confirmationRequiredText = computed(() => {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}${m}${d}+我确认`;
+    });
 
     const userStore = useUserStore();
 
@@ -1125,6 +1237,79 @@
             importPhase.value = 'error';
             importError.value = result.error;
             toast.error(t('view.settings.advanced.advanced.db_import.error', { error: result.error }));
+        }
+    }
+
+    /**
+     * Execute database reset - drops all user data tables and reinitializes the database.
+     * Requires the user to type the confirmation text "YYYYMMDD+我确认".
+     */
+    async function handleResetDatabase() {
+        // Validate confirmation input
+        const expectedText = confirmationRequiredText.value;
+        if (resetConfirmInput.value !== expectedText) {
+            resetInputError.value = true;
+            return;
+        }
+        resetInputError.value = false;
+
+        resetPhase.value = 'in_progress';
+        resetInProgress.value = true;
+
+        const msgBox = toast.warning(t('view.settings.advanced.advanced.db_reset.in_progress'), { duration: Infinity });
+
+        try {
+            // 1. Get all table names from sqlite_master (excluding sqlite_ internal tables)
+            const allTables = [];
+            await sqliteService.execute((row) => {
+                allTables.push(row[0]);
+            }, `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`);
+
+            // 2. Drop all tables in a transaction
+            await database.begin();
+            for (const tableName of allTables) {
+                await sqliteService.executeNonQuery(`DROP TABLE IF EXISTS "${tableName}"`);
+            }
+            await database.commit();
+
+            // 3. Vacuum to reclaim space
+            await database.vacuum();
+
+            // 4. Re-initialize tables
+            const configRepo = window.configRepository;
+            await configRepo.init();
+            await database.initTables();
+            if (userStore.currentUser?.id) {
+                await database.initUserTables(userStore.currentUser.id);
+            }
+
+            // 5. Log the reset operation
+            const resetLog = {
+                timestamp: new Date().toISOString(),
+                user: userStore.currentUser?.displayName || 'Unknown',
+                userId: userStore.currentUser?.id || ''
+            };
+            await configRepo.setObject('reset_log', resetLog);
+
+            toast.dismiss(msgBox);
+            toast.success(t('view.settings.advanced.advanced.db_reset.success'));
+
+            // 6. Close dialog
+            resetPhase.value = 'confirm';
+            resetConfirmInput.value = '';
+            isResetDialogVisible.value = false;
+            resetInProgress.value = false;
+
+            // 7. Restart the application
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            vrcxUpdaterStore.restartVRCX(false);
+        } catch (err) {
+            console.error('Database reset failed:', err);
+            toast.dismiss(msgBox);
+            resetPhase.value = 'error';
+            resetError.value = err.message || String(err);
+            resetInProgress.value = false;
+            toast.error(t('view.settings.advanced.advanced.db_reset.error', { error: resetError.value }));
         }
     }
 

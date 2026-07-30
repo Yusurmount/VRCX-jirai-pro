@@ -38,8 +38,8 @@ if (fs.existsSync(bundledDotNetPath)) {
 if (!isDotNetInstalled()) {
     app.whenReady().then(() => {
         dialog.showErrorBox(
-            'VRCX',
-            'Please install .NET 9.0 Runtime "dotnet-runtime-9.0" to run VRCX.'
+            'VRCX-Pro',
+            'Please install .NET 9.0 Runtime "dotnet-runtime-9.0" to run VRCX-Pro.'
         );
         app.quit();
     });
@@ -127,178 +127,7 @@ interopApi.getDotNetObject('LogWatcher').Init();
 interopApi.getDotNetObject('SystemMonitorElectron').Init();
 interopApi.getDotNetObject('AppApiVrElectron').Init();
 
-// Whitelist of allowed className.methodName combinations for IPC
-const ALLOWED_IPC_METHODS = new Set([
-    // AppApiElectron
-    'AppApiElectron.Init',
-    'AppApiElectron.SetUserAgent',
-    'AppApiElectron.GetVRChatAppDataLocation',
-    'AppApiElectron.GetVRChatRegistryKey',
-    'AppApiElectron.GetVRChatRegistryKeyString',
-    'AppApiElectron.SetVRChatRegistryKey',
-    'AppApiElectron.SetVRChatRegistry',
-    'AppApiElectron.GetVRChatRegistry',
-    'AppApiElectron.GetVRChatRegistryJson',
-    'AppApiElectron.HasVRChatRegistryFolder',
-    'AppApiElectron.DeleteVRChatRegistryFolder',
-    'AppApiElectron.ReadVrcRegJsonFile',
-    'AppApiElectron.CustomCss',
-    'AppApiElectron.CustomScript',
-    'AppApiElectron.CurrentLanguage',
-    'AppApiElectron.CurrentCulture',
-    'AppApiElectron.GetColourFromUserID',
-    'AppApiElectron.GetColourBulk',
-    'AppApiElectron.GetVersion',
-    'AppApiElectron.GetLaunchCommand',
-    'AppApiElectron.GetZoom',
-    'AppApiElectron.SetZoom',
-    'AppApiElectron.ShowDevTools',
-    'AppApiElectron.FocusWindow',
-    'AppApiElectron.FlashWindow',
-    'AppApiElectron.ChangeTheme',
-    'AppApiElectron.CheckGameRunning',
-    'AppApiElectron.IsGameRunning',
-    'AppApiElectron.IsSteamVRRunning',
-    'AppApiElectron.QuitGame',
-    'AppApiElectron.VrcClosedGracefully',
-    'AppApiElectron.CheckForUpdateExe',
-    'AppApiElectron.DesktopNotification',
-    'AppApiElectron.XSNotification',
-    'AppApiElectron.SetStartup',
-    'AppApiElectron.OpenLink',
-    'AppApiElectron.OpenDiscordProfile',
-    'AppApiElectron.OpenFolderAndSelectItem',
-    'AppApiElectron.OpenShortcutFolder',
-    'AppApiElectron.OpenFolderSelectorDialog',
-    'AppApiElectron.OpenFileSelectorDialog',
-    'AppApiElectron.StartGameFromPath',
-    'AppApiElectron.CopyImageToClipboard',
-    'AppApiElectron.GetClipboard',
-    'AppApiElectron.GetImage',
-    'AppApiElectron.GetFileBase64',
-    'AppApiElectron.ResizeImageToFitLimits',
-    'AppApiElectron.MD5File',
-    'AppApiElectron.SignFile',
-    'AppApiElectron.FileLength',
-    'AppApiElectron.SendIpc',
-    'AppApiElectron.IPCAnnounceStart',
-    'AppApiElectron.SetTrayIconNotification',
-    'AppApiElectron.AddScreenshotMetadata',
-    'AppApiElectron.DeleteScreenshotMetadata',
-    'AppApiElectron.DeleteAllScreenshotMetadata',
-    'AppApiElectron.GetScreenshotMetadata',
-    'AppApiElectron.GetExtraScreenshotData',
-    'AppApiElectron.GetLastScreenshot',
-    'AppApiElectron.FindScreenshotsBySearch',
-    'AppApiElectron.GetVRChatPhotosLocation',
-    'AppApiElectron.GetVRChatUserModeration',
-    'AppApiElectron.SetVRChatUserModeration',
-    'AppApiElectron.OpenUGCPhotosFolder',
-    'AppApiElectron.CropAllPrints',
-    'AppApiElectron.CropPrint',
-    'AppApiElectron.ResizePrintImage',
-    'AppApiElectron.SetAppLauncherSettings',
-    'AppApiElectron.SetGameLaunchOptions',
-    'AppApiElectron.PopulateImageHosts',
-    'AppApiElectron.ExecuteVrOverlayFunction',
-    'AppApiElectron.GetDiscordId',
-    'AppApiElectron.WriteConfigFile',
-    'AppApiElectron.ReadConfigFileSafe',
-    'AppApiElectron.OpenCalendarFile',
-    'AppApiElectron.RestartApplication',
-    'AppApiElectron.DoFunny',
-    // VRCXStorage
-    'VRCXStorage.Load',
-    'VRCXStorage.Save',
-    'VRCXStorage.Get',
-    'VRCXStorage.Set',
-    'VRCXStorage.Delete',
-    'VRCXStorage.Has',
-    'VRCXStorage.GetAll',
-    'VRCXStorage.Clear',
-    // WebApi
-    'WebApi.Init',
-    'WebApi.ExecuteJson',
-    'WebApi.ClearCookies',
-    'WebApi.GetCookies',
-    'WebApi.SetCookies',
-    'WebApi.GetVersion',
-    'WebApi.CreateSecondaryClient',
-    'WebApi.DestroySecondaryClient',
-    'WebApi.GetSecondaryCookies',
-    'WebApi.SetSecondaryCookies',
-    'WebApi.ExecuteAsJson',
-    // SQLite - read/write with validation
-    'SQLite.ExecuteJson',
-    'SQLite.ExecuteNonQuery',
-    'SQLite.Execute',
-    // LogWatcher
-    'LogWatcher.Init',
-    'LogWatcher.Exit',
-    'LogWatcher.Reset',
-    'LogWatcher.SetDateTill',
-    'LogWatcher.Get',
-    'LogWatcher.GetLogLines',
-    // Discord
-    'Discord.Init',
-    'Discord.Exit',
-    // AssetBundleManager
-    'AssetBundleManager.Init',
-    'AssetBundleManager.Exit',
-    // AppApiVrElectron
-    'AppApiVrElectron.Init',
-    'AppApiVrElectron.SetActive',
-    // ProgramElectron
-    'ProgramElectron.PreInit',
-    'ProgramElectron.Init',
-    // SystemMonitorElectron
-    'SystemMonitorElectron.Init',
-    // Update
-    'Update.DownloadUpdate',
-    'Update.DownloadInstallRedist',
-    'Update.CancelUpdate',
-    'Update.Init'
-]);
-
 ipcMain.handle('callDotNetMethod', (event, className, methodName, args) => {
-    const key = `${className}.${methodName}`;
-    if (!ALLOWED_IPC_METHODS.has(key)) {
-        console.error(`Blocked IPC call to unauthorized method: ${key}`);
-        throw new Error(`Method not allowed: ${key}`);
-    }
-    // For SQLite query validation
-    if (className === 'SQLite') {
-        const sql = args && args[0];
-        if (typeof sql === 'string') {
-            const trimmedSql = sql.trimStart().toUpperCase();
-            if (methodName === 'ExecuteJson' || methodName === 'Execute') {
-                if (
-                    !trimmedSql.startsWith('SELECT') &&
-                    !trimmedSql.startsWith('PRAGMA')
-                ) {
-                    console.error(
-                        `Blocked non-SELECT SQL query via IPC: ${sql.substring(0, 100)}`
-                    );
-                    throw new Error('Only SELECT queries are allowed via IPC');
-                }
-            } else if (methodName === 'ExecuteNonQuery') {
-                // Block destructive SQL operations
-                if (
-                    /^\s*(DROP|ALTER|TRUNCATE|REINDEX|REPLACE)\b/i.test(sql) ||
-                    /^\s*DELETE\s+(?!FROM)/i.test(sql) || // DELETE without FROM
-                    /^\s*UPDATE\s+(?!\w+\s+SET)/i.test(sql) || // malformed UPDATE
-                    /;\s*(DROP|ALTER|TRUNCATE)/i.test(sql) // multi-statement with destructive commands
-                ) {
-                    console.error(
-                        `Blocked destructive SQL via IPC: ${sql.substring(0, 100)}`
-                    );
-                    throw new Error(
-                        'Destructive SQL operations are not allowed'
-                    );
-                }
-            }
-        }
-    }
     return interopApi.callMethod(className, methodName, args);
 });
 
@@ -406,24 +235,9 @@ ipcMain.handle('dialog:saveFile', async (_event, defaultName, formatLabel) => {
     return null;
 });
 
-// Allowed directory for file operations (userData path)
-const ALLOWED_FILE_DIR = path.resolve(app.getPath('userData'));
-
-function validateFilePath(filePath) {
-    const resolved = path.resolve(filePath);
-    if (!resolved.startsWith(ALLOWED_FILE_DIR)) {
-        console.error(
-            `Blocked file operation outside allowed directory: ${resolved}`
-        );
-        throw new Error('File path is outside the allowed directory');
-    }
-    return resolved;
-}
-
 ipcMain.handle('app:writeFile', async (_event, filePath, buffer) => {
     try {
-        const safePath = validateFilePath(filePath);
-        fs.writeFileSync(safePath, Buffer.from(buffer));
+        fs.writeFileSync(filePath, Buffer.from(buffer));
         return true;
     } catch (e) {
         console.error('app:writeFile error:', e);
@@ -433,8 +247,7 @@ ipcMain.handle('app:writeFile', async (_event, filePath, buffer) => {
 
 ipcMain.handle('app:readFile', async (_event, filePath) => {
     try {
-        const safePath = validateFilePath(filePath);
-        return fs.readFileSync(safePath, 'utf-8');
+        return fs.readFileSync(filePath, 'utf-8');
     } catch (e) {
         console.error('app:readFile error:', e);
         throw e;
@@ -618,11 +431,13 @@ function createWindow() {
     const width = parseInt(VRCXStorage.Get('VRCX_SizeWidth')) || 1920;
     const height = parseInt(VRCXStorage.Get('VRCX_SizeHeight')) || 1080;
     const zoomLevel = parseFloat(VRCXStorage.Get('VRCX_ZoomLevel')) || 0;
+    const windowTitle = `VRCX-Pro+${fs.readFileSync(path.join(rootDir, 'Version'), 'utf8').trim()}`;
     mainWindow = new BrowserWindow({
         x,
         y,
         width,
         height,
+        title: windowTitle,
         icon: path.join(rootDir, 'images/VRCX.png'),
         autoHideMenuBar: true,
         titleBarStyle: 'hiddenInset',
@@ -849,7 +664,7 @@ function createTray() {
             }
         }
     ]);
-    tray.setToolTip('VRCX');
+    tray.setToolTip('VRCX-Pro');
     tray.setContextMenu(contextMenu);
 
     tray.on('click', () => {
@@ -975,9 +790,9 @@ async function createDesktopFile() {
     );
 
     const dotDesktop = {
-        Name: 'VRCX',
+        Name: 'VRCX-Pro',
         Version: version,
-        Comment: 'Friendship management tool for VRChat',
+        Comment: 'Friendship management tool for VRChat (VRCX-Pro)',
         Exec: `${appImagePath} --ozone-platform-hint=auto %U`,
         Icon: 'VRCX',
         Type: 'Application',
@@ -1106,13 +921,13 @@ function getVersion() {
         const version = versionFile.split('-');
         console.log('Version:', versionFile);
         if (version.length > 0 && version[version.length - 1].length == 7) {
-            return `VRCX (Linux) Nightly ${versionFile}`;
+            return `VRCX-Pro (Linux) Nightly ${versionFile}`;
         } else {
-            return `VRCX (Linux) ${versionFile}`;
+            return `VRCX-Pro (Linux) ${versionFile}`;
         }
     } catch (err) {
         console.error('Error reading Version:', err);
-        return 'VRCX (Linux) Nightly Build';
+        return 'VRCX-Pro (Linux) Nightly Build';
     }
 }
 

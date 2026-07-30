@@ -118,10 +118,11 @@
         "reveal": "always"
     },
     {
-        "label": "kill: running VRCX-Jirai.exe",
+        "label": "kill: running VRCX-Pro.exe",
         "command": "taskkill",
-        "args": ["/F", "/IM", "VRCX-Jirai.exe", "/T"],
+        "args": ["/F", "/IM", "VRCX-Pro.exe", "/T"],
         "reveal": "always",
         "ignore_cancel": true
     }
 ]
+

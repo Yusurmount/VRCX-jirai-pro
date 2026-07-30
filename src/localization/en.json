@@ -919,7 +919,12 @@
                     "disable_gpu_acceleration_tooltip": "Only change this option if you know what you're doing, may fix issues with UI, requires restarting VRCX",
                     "disable_vr_overlay_gpu_acceleration": "Disable VR Overlay GPU Acceleration",
                     "proxy": "Proxy Settings",
-                    "startup_linux": "Add \"--startup\" arg to startup VRCX.desktop file to start VRCX minimized at system startup"
+                    "startup_linux": "Add \"--startup\" arg to startup VRCX.desktop file to start VRCX minimized at system startup",
+                    "restore_defaults": "Restore Default Settings",
+                    "restore_defaults_confirm_title": "Restore Default Settings",
+                    "restore_defaults_confirm_description": "Are you sure you want to restore all preference settings to their default values? This will not affect your user data or other settings.",
+                    "restore_defaults_success": "Preferences have been restored to default values.",
+                    "restore_defaults_restart_notice": "Some changes (GPU acceleration, proxy, etc.) may require an application restart to take effect."
                 },
                 "favorites": {
                     "header": "Favorite Groups Filter",
@@ -1438,6 +1443,20 @@
                         "error_invalid_json": "Invalid JSON file. Please select a valid VRCX database backup file.",
                         "import_log_title": "Import Log",
                         "import_log_empty": "No import records."
+                    },
+                    "db_reset": {
+                        "button": "Reset Database",
+                        "warning_title": "Reset Database",
+                        "warning_alert": "This operation is irreversible! All user data will be permanently deleted.",
+                        "warning_description": "This will delete ALL user data from the database, including:",
+                        "warning_items": "Feed history, game logs, notifications, favorites, notes/memos, avatar history, friend logs, cache data, and all other application data.",
+                        "warning_confirmation": "This action CANNOT be undone. It is strongly recommended to back up your database before proceeding.",
+                        "input_label": "Type the following to confirm: {required}",
+                        "input_placeholder": "Enter confirmation text",
+                        "input_error": "Confirmation text does not match. Please try again.",
+                        "in_progress": "Resetting database...",
+                        "success": "Database has been reset successfully. Restarting...",
+                        "error": "Database reset failed: {error}"
                     }
                 },
                 "photon": {

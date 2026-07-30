@@ -11,12 +11,12 @@
     <Platforms>x64;ARM64</Platforms>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <AssemblyTitle>VRCX-Jirai</AssemblyTitle>
-    <Product>VRCX-Jirai</Product>
+    <AssemblyTitle>VRCX-Pro</AssemblyTitle>
+    <Product>VRCX-Pro</Product>
     <Copyright>vrcx-team, pypy, natsumi</Copyright>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Title>VRCX-Jirai</Title>
+    <Title>VRCX-Pro</Title>
     <Description>VRCX Jirai Edition</Description>
     <PackageIcon>..\images\VRCX.png</PackageIcon>
     <RepositoryUrl>https://github.com/Yusurmount/VRCX-jirai-pro</RepositoryUrl>
@@ -48,7 +48,7 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyName>VRCX-Jirai</AssemblyName>
+    <AssemblyName>VRCX-Pro</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

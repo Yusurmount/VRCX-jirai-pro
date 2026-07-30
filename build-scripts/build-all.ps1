@@ -1,10 +1,9 @@
-cd ..
-
 $ErrorActionPreference = "Stop"
 
-$installPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -version 16.0 -property installationpath
-Import-Module (Join-Path $installPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation
+# Visual Studio is not required; .NET SDK handles the build directly.
+# $installPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -version 16.0 -property installationpath
+# Import-Module (Join-Path $installPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
+# Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation
 
 $Date = Get-Date -format yyyyMMdd
 $ZipName = "VRCX_" + $Date + ".zip"
@@ -15,7 +14,7 @@ dotnet build Dotnet\VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -
 
 Write-Host "Building Node.js..." -ForegroundColor Green
 Remove-Item -Path "node_modules" -Force -Recurse -ErrorAction SilentlyContinue
-npm ci --loglevel=error
+npm install --ignore-scripts --loglevel=error
 $ErrorActionPreference = "Continue"
 npm run prod
 $ErrorActionPreference = "Stop"
@@ -24,12 +23,12 @@ New-Item -ItemType Junction -Path "build\Cef\html" -Target "build\html"
 
 Write-Host "Creating Zip..." -ForegroundColor Green
 cd "build\Cef"
-7z a -tzip $ZipName * -mx=7 -xr0!"*.log" -xr0!"*.pdb"
+&"G:\Program Files\7-Zip\7z.exe" a -tzip $ZipName * -mx=7 -xr0!"*.log" -xr0!"*.pdb"
 Move-Item $ZipName ..\..\$ZipName -Force
 cd ..\..\
 
 Write-Host "Creating Installer..." -ForegroundColor Green
-$version = Get-Content -Path "Version" -Raw
+$version = (Get-Content -Path "Version" -Raw).Trim()
 cd "Installer"
 Out-File -FilePath "version_define.nsh" -Encoding UTF8 -InputObject "!define PRODUCT_VERSION_FROM_FILE `"$version.0`""
 $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
