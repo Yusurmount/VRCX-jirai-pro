@@ -4,7 +4,7 @@
 
 </div>
 
-这是 [VRCX-Pro](https://github.com/Yusurmount/VRCX-Pro) 的扩展版本。
+这是 [VRCX-Jirai](https://github.com/FuLuTang/VRCX-jirai) 的扩展版本。
 
 > 叠甲：`功能仅供娱乐，勿用非法用途!`
 > 所有的功能都是基于 VRCX 的原版数据库和原版接口API，没有实现任何有关“不该获取到的信息”。
@@ -12,7 +12,7 @@
 
 > 开 🟡黄灯🔴红灯 即可使本软件核心功能失效
 
-### v1.0.0版本将会覆盖安装VRCX-Jirai，v1.1.0及以后的版本不受影响
+### 已知问题：v1.1.0的构建版本启动异常，有概率无法启动
 
 ## 新功能
 
