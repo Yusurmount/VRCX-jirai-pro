@@ -16,7 +16,7 @@ const fs = require('fs');
 const https = require('https');
 const crypto = require('crypto');
 
-//app.disableHardwareAcceleration();
+app.disableHardwareAcceleration();
 
 const bundledDotNetPath = path.join(process.resourcesPath, 'dotnet-runtime');
 if (fs.existsSync(bundledDotNetPath)) {

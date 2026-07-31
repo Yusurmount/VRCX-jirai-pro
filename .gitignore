@@ -18,3 +18,4 @@ coverage/
 build-scripts/usr_*.json
 Installer/VRCX-Pro_Setup.exe
 VRCX-Pro_Portable_*.zip
+release/

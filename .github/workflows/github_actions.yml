@@ -58,7 +58,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: Build Cef .NET Application
-        run: dotnet build Dotnet/VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -p:Platform=x64 -p:PlatformTarget=x64 -p:RestorePackagesConfig=true -t:"Restore;Clean;Build" -m -a x64 --self-contained
+        run: dotnet build Dotnet/VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -p:Platform=x64 -p:PlatformTarget=x64 -p:RestorePackagesConfig=true -t:"Restore;Clean;Build" -m -a x64
       - name: Check if we want to sign
         id: check_sign
         run: |
@@ -379,7 +379,8 @@ jobs:
         run: |
           file_name="VRCX-Pro_${{ needs.set_version.outputs.version }}.zip"
           cd build/Cef
-          7z a -tzip ${file_name} * -mx=7 -xr0!*.log
+          7z a -tzip ${file_name} * -mx=7 -xr0!*.log -xr!locales -xr!dxcompiler.dll -xr!vk_swiftshader.dll -xr!vk_swiftshader_icd.json -xr!Microsoft.Windows.SDK.NET.dll -xr!WinRT.Runtime.dll
+          7z a -tzip ${file_name} locales/en-US.pak locales/zh-CN.pak locales/zh-TW.pak -mx=7
           mv ${file_name} ../../${file_name}
           echo "Zip FileName: ${file_name}"
       - name: Upload Zip artifact

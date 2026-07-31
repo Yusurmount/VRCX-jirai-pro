@@ -152,6 +152,23 @@ FunctionEnd
 ;Installer Sections
 
 Section "Install" SecInstall
+    ; --- Ensure .NET 10 Desktop Runtime is installed ---
+    DetailPrint "Checking .NET 10 Desktop Runtime..."
+    nsExec::ExecToStack 'cmd /c dotnet --list-runtimes 2>nul | findstr /C:"Microsoft.WindowsDesktop.App 10." >nul'
+    Pop $0
+    ${If} $0 != 0
+        DetailPrint ".NET 10 Desktop Runtime not found, downloading..."
+        inetc::get "https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe" "$TEMP\dotnetdesktopruntime_x64.exe"
+        Pop $0
+        ${If} $0 == "OK"
+            DetailPrint "Installing .NET 10 Desktop Runtime..."
+            ExecWait '"$TEMP\dotnetdesktopruntime_x64.exe" /install /quiet /norestart'
+        ${Else}
+            MessageBox MB_OK|MB_ICONEXCLAMATION "下载 .NET 10 Desktop Runtime 失败。$\n请手动安装后重试: https://dotnet.microsoft.com/download/dotnet/10.0"
+        ${EndIf}
+        Delete "$TEMP\dotnetdesktopruntime_x64.exe"
+    ${EndIf}
+
     StrCmp $upgradeInstallation 0 noUpgrade
         DetailPrint "Uninstall previous version..."
         ExecWait '"$INSTDIR\Uninstall.exe" /S _?=$INSTDIR'
@@ -167,7 +184,14 @@ Section "Install" SecInstall
 
     SetOutPath "$INSTDIR"
 
-    File /r /x *.log /x *.pdb "..\build\Cef\*.*"
+    File /r /x *.log /x *.pdb /x dxcompiler.dll /x vk_swiftshader.dll /x vk_swiftshader_icd.json /x "Microsoft.Windows.SDK.NET.dll" /x "WinRT.Runtime.dll" /x "locales" "..\build\Cef\*.*"
+
+    ; Install only the locale packs VRCX-Pro needs
+    SetOutPath "$INSTDIR\locales"
+    File "..\build\Cef\locales\en-US.pak"
+    File "..\build\Cef\locales\zh-CN.pak"
+    File "..\build\Cef\locales\zh-TW.pak"
+    SetOutPath "$INSTDIR"
 
     WriteRegStr HKLM "Software\VRCX-Pro" "InstallDir" $INSTDIR
     WriteUninstaller "$INSTDIR\Uninstall.exe"
